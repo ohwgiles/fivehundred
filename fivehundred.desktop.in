@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=${CPACK_PACKAGE_VERSION}
+Type=Application
+Name=Five Hundred
+Comment=A trick-taking card game
+Categories=Game;CardGame;Qt
+TryExec=fivehundred
+Exec=fivehundred
+Icon=/usr/share/fivehundred/gfx/icon48.png
