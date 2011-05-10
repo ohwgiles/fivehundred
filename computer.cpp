@@ -237,13 +237,17 @@ Card* Computer::yourTurnToPlay(const Trick* trick) {
         });
     }, 1, [&](){
         Card* c = lua_extract<Card>(L);
-        if(this->cardValid(trick, m_trumps, *c) && std::find(hand.begin(), hand.end(), c) != hand.end()) {
-            hand.erase(std::find(hand.begin(), hand.end(), c));
-            registerHand();
-            //trick->playCard(this, c);
-            myCard = c;
+        debug << "Extracted card: " << *c;
+        if(std::find(hand.begin(), hand.end(), c) != hand.end()) {
+			if(this->cardValid(trick, m_trumps, *c)) {
+				hand.erase(std::find(hand.begin(), hand.end(), c));
+				registerHand();
+				//trick->playCard(this, c);
+				myCard = c;
+			} else
+				fatal(error << "Tried to play an illegal card - run with debug for why");
         } else
-            fatal(error << "Tried to play an illegal card");
+            fatal(error<<"Tried to play a non-existant card");
     });
 
     m_lead = Suit::NONE;

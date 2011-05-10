@@ -101,15 +101,18 @@ void Human::handDealt() {
 }
 
 void Human::kittyButtonClicked() {
-    trace;
-    emit requestKittyButtonVisible(false);
-    for(Hand::iterator it=hand.begin(); it!=hand.end();) {
+    info;
+    for(Hand::iterator it=hand.begin(); it!=hand.end(); ++it) {
+		info << "in loop";
         disconnect(*it, SIGNAL(cardClicked(Card&)), this, SLOT(cardSwapped(Card&)));
         if((*it)->raised()) {
             m_kitty_discards.push_back(*it);
-        } else ++it;
+        }
     }
+    info << "after work";
     m_wait.wakeAll();
+    info << "after wake";
+    emit requestKittyButtonVisible(false);
 }
 
 void Human::cardTriedToPlay(Card& card) {
