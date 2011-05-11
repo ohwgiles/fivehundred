@@ -123,7 +123,8 @@ void Human::cardTriedToPlay(Card& card) {
             disconnect(*c, SIGNAL(cardClicked(Card&)), this, SLOT(cardTriedToPlay(Card&)));
         }
         Hand::iterator c = std::find(hand.begin(), hand.end(), &card);
-        assert(c != hand.end());
+		if(c == hand.end())
+			fatal(error<<"Somehow tried to play a card not in your hand");
         m_card_to_play = *c;
         hand.erase(c);
         m_wait.wakeAll();

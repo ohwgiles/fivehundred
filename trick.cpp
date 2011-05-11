@@ -15,7 +15,17 @@ Trick::Trick() :
     trace;
 }
 
+Player* Trick::player(int index) const {
+	if(!(index < m_num_cards))
+	fatal(error<<"Index out of bounds");
+	return m_plays[index].player;
+}
 
+Card* Trick::card(int index) const {
+	if(!(index < m_num_cards))
+		fatal(error<<"Index out of bounds");
+		return m_plays[index].card;
+}
 
 void Trick::playCard(Player *player, Card *card) {
     trace;

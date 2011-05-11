@@ -2,7 +2,6 @@
 #define SUIT_HPP
 
 #include <iosfwd>
-#include <cassert>
 
 class Suit {
 public:
@@ -20,15 +19,7 @@ public:
     bool operator!=(SuitEnum suit) const {
         return !operator==(suit);
     }
-    bool operator<(const Suit& other) const {
-        if(*this == other) return false;
-        if(m_suitenum == SPADES) return true;
-        if(m_suitenum == CLUBS) return other.m_suitenum != SPADES;
-        if(m_suitenum == DIAMONDS) return (other.m_suitenum == HEARTS) | (other.m_suitenum == NONE);
-        if(m_suitenum == HEARTS) return other.m_suitenum == NONE;
-        if(m_suitenum == NONE) return false;
-        assert(0);
-    }
+    bool operator<(const Suit& other) const;
     operator int() const {
         return int(m_suitenum);
     }

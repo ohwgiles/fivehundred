@@ -10,22 +10,23 @@
 #define WHITE   "\033[1;37m"
 #define NORMAL  "\033[m"
 #elif defined(_WIN32)
-#include <windows.h>
-#define PURPLE  (FOREGROUND_BLUE | FOREGROUND_RED)
-#define TEAL    (FOREGROUND_BLUE | FOREGROUND_GREEN)
-#define YELLOW  (FORGEROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY)
-#define GREEN   (FOREGROUND_GREEN)
-#define RED     (FOREGROUND_RED | FOREGROUND_INTENSITY)
-#define WHITE   (FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY)
+#define PURPLE  (0x1 | 0x4)
+#define TEAL    (0x1 | 0x2)
+#define YELLOW  (0x2 | 0x4 | 0x8)
+#define GREEN   (0x2)
+#define RED     (0x4 | 0x8)
+#define WHITE   (0x1 | 0x4 | 0x2 | 0x8)
 #define NORMAL  0
 #endif
+
+#include <QString>
 
 class os
 {
 public:
     os();
-    static char AI_PATH[512];
-    static char GFX_PATH[512];
+    static QString AI_PATH;
+    static QString GFX_PATH;
     static const char* getUserName();
 #if defined(__linux)
     static void setStdoutColor(const char* colorcode);

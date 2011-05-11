@@ -3,8 +3,8 @@
 #include <QGraphicsSceneMouseEvent>
 
 #include <QSize>
-#include "os.hpp"
 #include "log.hpp"
+#include "os.hpp"
 
 
 
@@ -253,14 +253,16 @@ std::istream& operator>>(std::istream& is, Card& c) {
         v = Card::KING;
     } else if(tmp == "Ace") {
         v = Card::ACE;
-    } else if(sscanf(tmp.c_str(), "%2d", (int*)&v) != EOF ) {
-        if(!(v >= Card::TWO && v <= Card::TEN)) {
+    } else {
+		std::stringstream ss(tmp);
+		unsigned tmp_value;
+		ss >> tmp_value;
+        if(ss.fail() || !(tmp_value >= Card::TWO && tmp_value <= Card::TEN)) {
             is.setstate(is.failbit);
             return is;
-        }
-    } else {
-        is.setstate(is.failbit);
-        return is;
+        } else {
+			v = Card::Value(tmp_value);
+		}
     }
 
     is >> tmp;

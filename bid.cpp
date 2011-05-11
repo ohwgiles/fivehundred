@@ -23,8 +23,10 @@ Bid::Bid(Suit suit, int numTricks) :
         m_tricks(numTricks)
 {
     trace;
-    assert(suit == Suit::SPADES || suit == Suit::CLUBS || suit == Suit::DIAMONDS || suit == Suit::HEARTS || suit == Suit::NONE);
-    assert(numTricks >= 5 && numTricks <= 10);
+    if(!(suit == Suit::SPADES || suit == Suit::CLUBS || suit == Suit::DIAMONDS || suit == Suit::HEARTS || suit == Suit::NONE))
+		fatal(error<<"Invalid suit");
+    if(!(numTricks >= 5 && numTricks <= 10))
+		fatal(error<<"Invalid number of tricks: "<<numTricks);
 }
 
 bool Bid::operator <(const Bid& other) const {

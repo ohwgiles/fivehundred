@@ -1,41 +1,48 @@
 #include "os.hpp"
 
 #include <cstdlib>
-#include "log.hpp"
 
 #if defined(__linux)
 #include <sys/stat.h>
 #include <unistd.h>
+#include "log.hpp"
 #elif defined(_WIN32)
+#include <io.h>
 #include <windows.h>
+#include <iostream>
 static CONSOLE_SCREEN_BUFFER_INFO csbi;
-static HANDLE hstdout; = GetStdHandle( STD_OUTPUT_HANDLE );
+static HANDLE hstdout;
 #elif defined(MACOSX)
 #error "Todo"
 #else
 #error "Unsupported platform"
 #endif
 
-char os::AI_PATH[];
-char os::GFX_PATH[];
+QString os::AI_PATH;
+QString os::GFX_PATH;
 
 os::os()
 {
 #if defined(__linux)
 	struct stat st;
 	if(stat("/usr/share/fivehundred", &st) == 0) {
-		sprintf(AI_PATH, "/usr/share/fivehundred/scripts/");
-		sprintf(GFX_PATH, "/usr/share/fivehundred/gfx/");
+		AI_PATH = "/usr/share/fivehundred/scripts/";
+		GFX_PATH = "/usr/share/fivehundred/gfx/";
 	} else if(stat("/usr/local/share/fivehundred", &st) == 0) {
-		sprintf(AI_PATH, "/usr/local/share/fivehundred/scripts/");
-		sprintf(GFX_PATH, "/usr/local/share/fivehundred/gfx/");
+		AI_PATH = "/usr/local/share/fivehundred/scripts/";
+		GFX_PATH = "/usr/local/share/fivehundred/gfx/";
 	} else fatal(error<<"Could not find data directories");
-
 #elif defined(_WIN32)
-    SHGetFolderPath(NULL, CSIDL_COMMON_APPDATA, NULL, 0, AI_PATH);
-    strcat(AI_PATH, "\\scripts\\");
-    SHGetFolderPath(NULL, CSIDL_COMMON_APPDATA, NULL, 0, GFX_PATH);
-    strcat(GFX_PATH, "\\gfx\\");
+	wchar_t szAppPath[1024] = L"";
+	wchar_t szAppDirectory[1024] = L"";
+	GetModuleFileNameW(0, szAppPath, sizeof(szAppPath) - 1);
+	wcsncpy(szAppDirectory, szAppPath, wcsrchr(szAppPath, '\\') - szAppPath);
+	std::wcout << szAppPath << std::endl;
+	AI_PATH = QString::fromWCharArray(szAppDirectory) + "/../share/fivehundred/scripts/";
+	AI_PATH.replace("\\","/");
+	GFX_PATH = QString::fromWCharArray(szAppDirectory) + "/../share/fivehundred/gfx/";
+	GFX_PATH.replace("\\","/");
+	std::cout << AI_PATH.toAscii().constData() << std::endl;
     hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
     GetConsoleScreenBufferInfo(hstdout, &csbi);
 #elif defined(MACOSX)
@@ -51,7 +58,7 @@ void os::setStdoutColor(const char* colorcode) {
 }
 #elif defined(_WIN32)
 void os::setStdoutColor(unsigned colorcode) {
-    if(_isatty(hstdout)) {
+    if(_isatty(1)) {
         if(colorcode == 0)
             SetConsoleTextAttribute(hstdout, csbi.wAttributes);
         else

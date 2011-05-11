@@ -16,7 +16,8 @@
 #include <QPropertyAnimation>
 #include <QGraphicsProxyWidget>
 
-#include <Qt/qgl.h>
+
+//#include <Qt/qgl.h>
 
 #include "setupplayer.hpp"
 #include "newgamedialog.hpp"
@@ -48,8 +49,7 @@ MainWindow::MainWindow(bool open_hand, QWidget *parent) :
         m_scene->addItem(c);
 
     //ui->graphicsView->setViewport(new QGLWidget(QGLFormat(QGL::DirectRendering)));
-
-    ui->graphicsView->setStyleSheet(QString("background-image: url(") + os::GFX_PATH + "table.png);");
+    ui->graphicsView->setStyleSheet(QString("background-image: url('") + os::GFX_PATH + "table.png');");
 
     m_kittybuttonproxy = m_scene->addWidget(m_kittybutton);
     m_kittybutton->setVisible(false);

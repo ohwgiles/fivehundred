@@ -19,8 +19,8 @@ public:
     Player* winner(Suit trumps) const;
     bool allPlayed() const { return m_num_cards == 4; }
     int size() const { return m_num_cards; }
-    Player* player(int index) const { assert(index < m_num_cards);  return m_plays[index].player; }
-    Card* card(int index) const { assert(index < m_num_cards); return m_plays[index].card; }
+    Player* player(int index) const;
+    Card* card(int index) const;
     std::vector<Card*> cards();
 
     class CompareInTrick {

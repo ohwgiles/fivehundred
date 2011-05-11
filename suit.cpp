@@ -1,6 +1,5 @@
 #include "suit.hpp"
 #include <iostream>
-#include <cassert>
 #include "log.hpp"
 
 const char Suit::className[] = "Suit";
@@ -16,6 +15,16 @@ bool Suit::HandComparator::operator ()(const Suit& lhs, const Suit& rhs) const {
     if(lhs == CLUBS) return rhs == HEARTS || rhs == NONE;
     if(lhs == HEARTS) return rhs == NONE;
     return false;
+}
+
+bool Suit::operator<(const Suit& other) const {
+	if(*this == other) return false;
+	if(m_suitenum == SPADES) return true;
+	if(m_suitenum == CLUBS) return other.m_suitenum != SPADES;
+	if(m_suitenum == DIAMONDS) return (other.m_suitenum == HEARTS) | (other.m_suitenum == NONE);
+	if(m_suitenum == HEARTS) return other.m_suitenum == NONE;
+	if(m_suitenum == NONE) return false;
+	fatal(error<<"Invalid suit type: "<<other);
 }
 
 std::ostream& operator<<(std::ostream& s, const Suit& suit) {

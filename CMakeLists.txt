@@ -36,7 +36,7 @@ add_executable(fivehundred
 		setupplayer.cpp
 		suit.cpp
 		trick.cpp
-)
+		)
 		
 target_link_libraries(
 	fivehundred
@@ -72,21 +72,24 @@ add_dependencies(fivehundred version.h)
 if(WIN32 AND NOT UNIX)
     # There is a bug in NSI that does not handle full unix paths properly. Make
     # sure there is at least one set of four (4) backlasshes.
-    set(CPACK_PACKAGE_ICON "${CMake_SOURCE_DIR}/Utilities/Release\\\\InstallIcon.bmp")
+    set(CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/gfx\\\\icon48.png")
     set(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\\\MyExecutable.exe")
-    set(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} My Famous Project")
-    set(CPACK_NSIS_HELP_LINK "http:\\\\\\\\www.my-project-home-page.org")
-    set(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\www.my-personal-home-page.com")
-    set(CPACK_NSIS_CONTACT "me@my-personal-home-page.com")
+    set(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} Five Hundred")
+    #set(CPACK_NSIS_HELP_LINK "http:\\\\\\\\www.my-project-home-page.org")
+    #set(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\www.my-personal-home-page.com")
+    #set(CPACK_NSIS_CONTACT "me@my-personal-home-page.com")
     set(CPACK_NSIS_MODIFY_PATH ON)
+	set(CPACK_GENERATOR "NSIS")
 else()
 	configure_file(fivehundred.desktop.in fivehundred.desktop)
 	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/fivehundred.desktop DESTINATION share/applications)
 
 	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 		set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+		set(CPACK_SYSTEM_NAME "amd64")
 	else()
 		set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "i386")
+		set(CPACK_SYSTEM_NAME "i386")
 	endif()
     add_dependencies(fivehundred installprefix.h)
     set(CPACK_DEBIAN_PACKAGE_NAME "fivehundred")
