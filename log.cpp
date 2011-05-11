@@ -1,3 +1,4 @@
+#include "os.hpp"
 #include "log.hpp"
 #include <cstdio>
 
@@ -5,13 +6,21 @@
 
 Log::Level Log::ReportingLevel = Log::USER;
 
-static char log_str[][16] = {
-    "\033[0;35mTRACE\033[m",
-    "\033[0;36mDEBUG\033[m",
-    "\033[1;33mUSER \033[m",
-    "\033[0;32mINFO \033[m",
-    "\033[1;31mERROR\033[m"
+
+static char log_str[][6] = {
+    "TRACE",
+    "DEBUG",
+    "USER ",
+    "INFO ",
+    "ERROR"
 };
+
+#define COLOR(loglevel) ( \
+    loglevel==Log::TRACE ? PURPLE :\
+    loglevel==Log::DEBUG ? TEAL :\
+    loglevel==Log::USER  ? YELLOW :\
+    loglevel==Log::INFO  ? GREEN :\
+    loglevel==Log::ERROR ? RED : 0)
 
 Log::Log(Level level) :
         m_level(level)
@@ -53,26 +62,42 @@ struct fivehundrederror : public std::exception {
 };
 
 Log::~Log() {
-
     if(m_level >= ReportingLevel) {
         char* str_level = log_str[int(m_level)];
         switch(m_level) {
         case USER:
-            fprintf(stderr, "[%s] (%s): \033[1;37m%s\033[m\n", str_level, m_funcname, m_stream.str().c_str());
+            printf("[");
+            os::setStdoutColor(YELLOW);
+            printf("%s", str_level);
+            os::setStdoutColor(NORMAL);
+            printf("] (%s): ", m_funcname);
+            os::setStdoutColor(WHITE);
+            printf("%s", m_stream.str().c_str());
+            os::setStdoutColor(NORMAL);
+            printf("\n");
             break;
         default:
-            if(!m_stream.str().empty())
-                fprintf(stderr, "[%s] - %s:%d - %s : \033[1;37m%s\033[m\n", str_level, m_filename, m_line, m_funcname, m_stream.str().c_str());
-            else
-                fprintf(stderr, "[%s] - %s:%d - %s\n", str_level, m_filename, m_line, m_funcname);
-
+            if(m_stream.str().empty()) {
+                printf("[");
+                os::setStdoutColor(COLOR(m_level));
+                printf("%s", str_level);
+                os::setStdoutColor(NORMAL);
+                printf("] - %s:%d - %s\n", m_filename, m_line, m_funcname);
+            } else {
+                printf("[");
+                os::setStdoutColor(COLOR(m_level));
+                printf("%s", str_level);
+                os::setStdoutColor(NORMAL);
+                printf("] - %s:%d - %s : ", m_filename, m_line, m_funcname);
+                os::setStdoutColor(WHITE);
+                printf("%s", m_stream.str().c_str());
+                os::setStdoutColor(NORMAL);
+                printf("\n");
+            }
             break;
         }
-        fflush(stderr);
+        fflush(stdout);
     }
-    //if(m_level == Log::ERROR)
-    //    throw fivehundrederror(m_stream.str().c_str());
-
 }
 
 void fatal(const std::basic_ostream<char>& ss) {

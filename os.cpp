@@ -5,8 +5,11 @@
 
 #if defined(__linux)
 #include <sys/stat.h>
+#include <unistd.h>
 #elif defined(_WIN32)
 #include <windows.h>
+static CONSOLE_SCREEN_BUFFER_INFO csbi;
+static HANDLE hstdout; = GetStdHandle( STD_OUTPUT_HANDLE );
 #elif defined(MACOSX)
 #error "Todo"
 #else
@@ -33,11 +36,30 @@ os::os()
     strcat(AI_PATH, "\\scripts\\");
     SHGetFolderPath(NULL, CSIDL_COMMON_APPDATA, NULL, 0, GFX_PATH);
     strcat(GFX_PATH, "\\gfx\\");
+    hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
+    GetConsoleScreenBufferInfo(hstdout, &csbi);
 #elif defined(MACOSX)
 #error "Todo"
 #endif
 
 }
+
+#if defined(__linux)
+void os::setStdoutColor(const char* colorcode) {
+    if(isatty(STDOUT_FILENO))
+        fprintf(stdout, colorcode);
+}
+#elif defined(_WIN32)
+void os::setStdoutColor(unsigned colorcode) {
+    if(_isatty(hstdout)) {
+        if(colorcode == 0)
+            SetConsoleTextAttribute(hstdout, csbi.wAttributes);
+        else
+            SetConsoleTextAttribute(hstdout, colorcode);
+    }
+}
+#endif
+
 
 const char* os::getUserName() {
 #if defined(_WIN32)
