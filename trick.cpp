@@ -1,19 +1,12 @@
 #include "trick.hpp"
 #include <algorithm>
 #include "card.hpp"
-#include <QParallelAnimationGroup>
-#include <QPropertyAnimation>
-#include <QGraphicsScene>
 #include "player.hpp"
-#include <boost/foreach.hpp>
 #include <iostream>
 #include "log.hpp"
 
-#include <QTimer>
 
-#define CARD_H_OFFSET 20
 
-extern bool fivehundred_app_is_interactive;
 
 Trick::Trick() :
         m_num_cards(0),

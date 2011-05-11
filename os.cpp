@@ -47,7 +47,7 @@ os::os()
 #if defined(__linux)
 void os::setStdoutColor(const char* colorcode) {
     if(isatty(STDOUT_FILENO))
-        fprintf(stdout, colorcode);
+        fprintf(stdout, "%s", colorcode);
 }
 #elif defined(_WIN32)
 void os::setStdoutColor(unsigned colorcode) {

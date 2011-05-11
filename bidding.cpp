@@ -1,4 +1,3 @@
-#include <boost/foreach.hpp>
 #include "bidding.hpp"
 #include "player.hpp"
 #include "log.hpp"
@@ -36,8 +35,8 @@ bool Bidding::complete() const {
 
 Bid Bidding::maxBid() const {
     trace;
-    BOOST_REVERSE_FOREACH(const Pair& p, m_bids) {
-        if(!(p.bid == Bid::PASS)) return p.bid;
+    for(std::vector<Pair>::const_reverse_iterator it = m_bids.rbegin(); it != m_bids.rend(); ++it) {
+        if(!(it->bid == Bid::PASS)) return it->bid;
     }
     return Bid(Bid::PASS);
 }
@@ -45,8 +44,8 @@ Bid Bidding::maxBid() const {
 
 const Bidding::Pair& Bidding::winner() const {
     trace;
-    BOOST_REVERSE_FOREACH(const Pair& p, m_bids) {
-        if(!(p.bid == Bid::PASS)) return p;
+    for(std::vector<Pair>::const_reverse_iterator it = m_bids.rbegin(); it != m_bids.rend(); ++it) {
+        if(!((*it).bid == Bid::PASS)) return *it;
     }
     fatal(error << "There is no winner");
 }

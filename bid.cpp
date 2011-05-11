@@ -1,7 +1,6 @@
 
 #include "bid.hpp"
 #include <iostream>
-#include <boost/foreach.hpp>
 #include "player.hpp"
 #include "log.hpp"
 

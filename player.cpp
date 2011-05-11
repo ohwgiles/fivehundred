@@ -2,7 +2,6 @@
 #include <QGraphicsScene>
 #include <algorithm>
 
-#include <boost/foreach.hpp>
 
 #include "player.hpp"
 #include "card.hpp"
@@ -40,7 +39,7 @@ bool Player::cardValid(const Trick* trick, Suit trumps, Card& card) {
     }
 
     // At this point they have not played what was lead, check to ensure they are short suited.
-    BOOST_FOREACH(const Card* c, hand) {
+    for(const Card* c: hand) {
         if (c->suit(trumps) == leadCard->suit(trumps)) {
             debug << name << " tried to play off suit but not short suited";
             return false; // They are not short suited, isTrump here handles the right / left bower

@@ -2,7 +2,6 @@
 #include "ui_biddialog.h"
 #include "player.hpp"
 #include <QVariant>
-#include <boost/foreach.hpp>
 #include "log.hpp"
 #include <sstream>
 #include "bidding.hpp"

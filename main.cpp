@@ -1,6 +1,5 @@
 #include <QtGui/QApplication>
 #include <QStringList>
-#include <boost/foreach.hpp>
 #include "mainwindow.hpp"
 #include "scorechart.hpp"
 #include "deck.hpp"
