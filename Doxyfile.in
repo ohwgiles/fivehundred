@@ -1,0 +1,70 @@
+PROJECT_NAME           = ${CMAKE_PROJECT}
+PROJECT_NUMBER         = ${VERSION}
+OUTPUT_DIRECTORY       = doc
+FULL_PATH_NAMES        = NO
+TAB_SIZE               = 8
+EXTRACT_ALL            = YES
+EXTRACT_STATIC         = YES
+SHOW_INCLUDE_FILES     = YES
+SHOW_USED_FILES        = NO
+SHOW_FILES             = NO
+SHOW_NAMESPACES        = NO
+QUIET                  = NO
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+INPUT                  = ${CMAKE_SOURCE_DIR}
+RECURSIVE              = NO
+EXCLUDE                =
+INLINE_SOURCES         = YES
+
+# If the VERBATIM_HEADERS tag is set to YES (the default) then Doxygen
+# will generate a verbatim copy of the header file for each class for
+# which an include is specified. Set to NO to disable this.
+
+VERBATIM_HEADERS       = YES
+
+GENERATE_HTML          = YES
+
+HTML_OUTPUT            = html
+HTML_FILE_EXTENSION    = .html
+
+# The HTML_HEADER tag can be used to specify a personal HTML header for
+# each generated HTML page. If it is left blank doxygen will generate a
+# standard header.
+
+HTML_HEADER            =
+
+# The HTML_FOOTER tag can be used to specify a personal HTML footer for
+# each generated HTML page. If it is left blank doxygen will generate a
+# standard footer.
+
+HTML_FOOTER            =
+
+# The HTML_STYLESHEET tag can be used to specify a user-defined cascading
+# style sheet that is used by each HTML page. It can be used to
+# fine-tune the look of the HTML output. If the tag is left blank doxygen
+# will generate a default style sheet. Note that doxygen will try to copy
+# the style sheet file to the HTML output directory, so don't put your own
+# stylesheet in the HTML output directory as well, or it will be erased!
+
+HTML_STYLESHEET        =
+
+HTML_DYNAMIC_SECTIONS  = YES
+DISABLE_INDEX          = YES
+ENUM_VALUES_PER_LINE   = 4
+SEARCHENGINE           = NO
+
+#---------------------------------------------------------------------------
+# configuration options related to the LaTeX output
+#---------------------------------------------------------------------------
+
+# If the GENERATE_LATEX tag is set to YES (the default) Doxygen will
+# generate Latex output.
+
+GENERATE_LATEX         = NO
+
+#---------------------------------------------------------------------------
+# Configuration options related to the dot tool
+#---------------------------------------------------------------------------
+
+CLASS_DIAGRAMS         = NO

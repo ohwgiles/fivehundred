@@ -1,31 +1,27 @@
 #include "suit.hpp"
+/*!
+  \file suit.cpp
+    Copyright 2011 Oliver Giles
+
+    This file is part of Five Hundred.
+
+    Five Hundred is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Five Hundred is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Five Hundred.  If not, see <http://www.gnu.org/licenses/>.
+*/
 #include <iostream>
 #include "log.hpp"
 
 const char Suit::className[] = "Suit";
-
-Suit::HandComparator Suit::handcomparator;
-
-bool Suit::HandComparator::operator ()(const Suit& lhs, const Suit& rhs) const {
-    trace;
-    //assert(lhs != NONE && rhs != NONE);
-    if(lhs == rhs) return false;
-    if(lhs == SPADES) return true;
-    if(lhs == DIAMONDS) return rhs == CLUBS || rhs == HEARTS || rhs == NONE;
-    if(lhs == CLUBS) return rhs == HEARTS || rhs == NONE;
-    if(lhs == HEARTS) return rhs == NONE;
-    return false;
-}
-
-bool Suit::operator<(const Suit& other) const {
-	if(*this == other) return false;
-	if(m_suitenum == SPADES) return true;
-	if(m_suitenum == CLUBS) return other.m_suitenum != SPADES;
-	if(m_suitenum == DIAMONDS) return (other.m_suitenum == HEARTS) | (other.m_suitenum == NONE);
-	if(m_suitenum == HEARTS) return other.m_suitenum == NONE;
-	if(m_suitenum == NONE) return false;
-	fatal(error<<"Invalid suit type: "<<other);
-}
 
 std::ostream& operator<<(std::ostream& s, const Suit& suit) {
     trace;

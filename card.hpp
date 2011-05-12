@@ -1,12 +1,28 @@
 #ifndef CARD_H
 #define CARD_H
+/*!
+  \file card.hpp
+    Copyright 2011 Oliver Giles
 
+    This file is part of Five Hundred.
+
+    Five Hundred is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Five Hundred is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Five Hundred.  If not, see <http://www.gnu.org/licenses/>.
+*/
 #include <iosfwd>
 #include <QObject>
 #include <QGraphicsPixmapItem>
-
 #include "suit.hpp"
-
 #include "seat.hpp"
 
 class QGraphicsSceneMouseEvent;
@@ -49,15 +65,6 @@ public:
     bool isTrump(Suit trumps) const;
     Suit suit(Suit trump = Suit::NONE) const;
     Value value(Suit trump = Suit::NONE) const;
-
-    class CompareInHand {
-    public:
-        CompareInHand(Suit trumps) : m_trumps(trumps) {}
-        bool operator()(const Card* lhs, const Card* rhs);
-    private:
-        Suit m_trumps;
-    };
-
 
     QPointF expectedPosition(QSize screen, Location loc) const;
 

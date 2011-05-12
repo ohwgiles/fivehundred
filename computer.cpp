@@ -1,11 +1,31 @@
 #include "computer.hpp"
+/*!
+  \file computer.cpp
+    Copyright 2011 Oliver Giles
+
+    This file is part of Five Hundred.
+
+    Five Hundred is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Five Hundred is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Five Hundred.  If not, see <http://www.gnu.org/licenses/>.
+*/
 #include "card.hpp"
 #include "trick.hpp"
 #include "bidding.hpp"
 #include "luahelper.hpp"
+#include <algorithm>
 #include "log.hpp"
 
-#include <algorithm>
+#define user Log(Log::USER).get(name, 0)
 
 template<>
 bool lua_cmp<Bid>(lua_State*, const Bid& op1, const Bid& op2) { return op1 < op2; }
@@ -13,7 +33,7 @@ bool lua_cmp<Bid>(lua_State*, const Bid& op1, const Bid& op2) { return op1 < op2
 template<>
 bool lua_cmp<Card>(lua_State* L, const Card& op1, const Card& op2) {
     Computer* c = static_cast<Computer*>(lua_touserdata(L, lua_upvalueindex(1)));
-    Trick::CompareInTrick comp(c->m_trumps, c->m_lead);
+    Trick::Comparator comp = {c->m_trumps, c->m_lead};
     return comp(&op1, &op2);
 }
 

@@ -1,35 +1,48 @@
 #include "mainwindow.hpp"
+/*!
+  \file mainwindow.cpp
+    Copyright 2011 Oliver Giles
+
+    This file is part of Five Hundred.
+
+    Five Hundred is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Five Hundred is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Five Hundred.  If not, see <http://www.gnu.org/licenses/>.
+*/
 #include "ui_mainwindow.h"
 
-#include "deck.hpp"
-#include <vector>
-#include <iostream>
-#include <locale>
-#include "player.hpp"
-#include "contract.hpp"
-#include "game.hpp"
 #include <QResizeEvent>
 #include <QMessageBox>
-#include "biddialog.hpp"
-
 #include <QPushButton>
 #include <QPropertyAnimation>
 #include <QGraphicsProxyWidget>
-
-
+#include <QParallelAnimationGroup>
 //#include <Qt/qgl.h>
+
+#include <vector>
 
 #include "setupplayer.hpp"
 #include "newgamedialog.hpp"
 #include "scorechart.hpp"
+
+#include "deck.hpp"
+#include "contract.hpp"
+#include "game.hpp"
+#include "biddialog.hpp"
 #include "human.hpp"
 #include "computer.hpp"
 #include "os.hpp"
-
 #include "version.h"
 #include "log.hpp"
-
-#include <QParallelAnimationGroup>
 
 MainWindow::MainWindow(bool open_hand, QWidget *parent) :
     QMainWindow(parent),
@@ -43,6 +56,7 @@ MainWindow::MainWindow(bool open_hand, QWidget *parent) :
     m_open_hand(open_hand)
 {
     ui->setupUi(this);
+
     ui->graphicsView->setScene(m_scene);
 
     for(Card* c: *m_deck)
@@ -51,9 +65,8 @@ MainWindow::MainWindow(bool open_hand, QWidget *parent) :
     //ui->graphicsView->setViewport(new QGLWidget(QGLFormat(QGL::DirectRendering)));
     ui->graphicsView->setStyleSheet(QString("background-image: url('") + os::GFX_PATH + "table.png');");
 
+    // Add all extra widgets to scene
     m_kittybuttonproxy = m_scene->addWidget(m_kittybutton);
-    m_kittybutton->setVisible(false);
-
     ui->statusBar->addWidget(&m_lbl_status, 1);
     ui->statusBar->addWidget(&m_lbl_team_ns);
     ui->statusBar->addWidget(&m_lbl_tricks_ns);
@@ -68,19 +81,22 @@ MainWindow::MainWindow(bool open_hand, QWidget *parent) :
     font.setPointSize(10);
     font.setStyleHint(QFont::SansSerif);
 
+    // Add player names to scene
     for(QGraphicsTextItem& n: m_player_names) {
         n.setFont(font);
         n.setDefaultTextColor(QColor(Qt::white));
         m_scene->addItem(&n);
     }
+
     resetUI();
 
     show();
-
+    // Still not quite sure why we have to do this
+    this->resize(m_scene->sceneRect().size().toSize());
 }
 
-MainWindow::~MainWindow()
-{
+MainWindow::~MainWindow() {
+    trace;
     delete m_biddialog;
     delete m_deck;
     delete m_kittybutton;
@@ -88,43 +104,30 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::updateDisplay() {
+    trace;
     QSize size(ui->graphicsView->size());
     m_deck->reposition(size);
-    m_player_names[int(SOUTH)].setPos(
-                size.width()/2 +
-                5*Card::H_OFFSET + Card::WIDTH/2,
-                size.height() - Card::EDGE_OFFSET + Card::HEIGHT/2 -
-                m_player_names[int(SOUTH)].boundingRect().height());
-    m_player_names[int(NORTH)].setPos(
-                size.width()/2 -
-                5*Card::H_OFFSET - Card::WIDTH/2 - m_player_names[int(NORTH)].boundingRect().width(),
-                Card::EDGE_OFFSET - Card::HEIGHT/2);
-    m_player_names[int(WEST)].setPos(
-                Card::EDGE_OFFSET - Card::HEIGHT/2,
-                size.height()/2 + 5*Card::H_OFFSET + Card::WIDTH/2);
-    m_player_names[int(EAST)].setPos(
-                size.width() -
-                Card::EDGE_OFFSET + Card::HEIGHT/2 - m_player_names[int(EAST)].boundingRect().width(),
-                size.height()/2 - 5*Card::H_OFFSET - Card::WIDTH/2 -
-                m_player_names[int(SOUTH)].boundingRect().height());
-    //m_game->reposition(m_scene);
+    repositionPlayerNames();
 }
 
 void MainWindow::showBidDialog(Human* player, Bidding* bids) {
+    trace;
     m_biddialog->show(player, bids);
 }
 
 void MainWindow::showKittyButton(bool show) {
-    debug;
+    trace;
     m_kittybutton->setVisible(show);
-    m_scene->update();
+    //m_scene->update();
 }
 
 void MainWindow::enableKittyButton(bool en) {
+    trace;
     m_kittybutton->setEnabled(en);
 }
 
 void MainWindow::animatePlayCard(Card* card) {
+    trace;
     QPointF final = card->expectedPosition(ui->graphicsView->size(), Card::TRICK);
     QPropertyAnimation* anim = new QPropertyAnimation(card, "position");
     connect(anim, SIGNAL(finished()), this, SLOT(animationComplete_()));
@@ -132,15 +135,11 @@ void MainWindow::animatePlayCard(Card* card) {
     anim->setEasingCurve(QEasingCurve::OutCirc);
     anim->setKeyValueAt(0, card->pos());
     anim->setKeyValueAt(1, final);
-    debug << "starting";
     anim->start(QAbstractAnimation::DeleteWhenStopped);
-
-
 }
 
 void MainWindow::animateCollectCards(std::vector<Card*> cards, Seat anc) {
-    debug;
-
+    trace;
     QParallelAnimationGroup* anim_group = new QParallelAnimationGroup();
     for(Card* c : cards) {
         QPropertyAnimation* pos = new QPropertyAnimation(c, "position");
@@ -181,19 +180,38 @@ void MainWindow::animateCollectCards(std::vector<Card*> cards, Seat anc) {
 }
 
 void MainWindow::animationComplete_() {
-    debug;
+    trace;
     emit animationComplete();
 }
 
+void MainWindow::repositionPlayerNames() {
+    QSize size(ui->graphicsView->size());
+    m_player_names[int(SOUTH)].setPos(
+                size.width()/2 +
+                4.5*Card::H_OFFSET + Card::WIDTH/2 - m_player_names[int(SOUTH)].boundingRect().width(),
+                size.height() - Card::EDGE_OFFSET + Card::HEIGHT/2);
+    m_player_names[int(NORTH)].setPos(
+                size.width()/2 -
+                4.5*Card::H_OFFSET - Card::WIDTH/2,
+                Card::EDGE_OFFSET - Card::HEIGHT/2 - m_player_names[int(NORTH)].boundingRect().height());
+    m_player_names[int(WEST)].setPos(
+                Card::EDGE_OFFSET - Card::HEIGHT/2,
+                size.height()/2 + 4.5*Card::H_OFFSET + Card::WIDTH/2);
+    m_player_names[int(EAST)].setPos(
+                size.width() -
+                Card::EDGE_OFFSET + Card::HEIGHT/2 - m_player_names[int(EAST)].boundingRect().width(),
+                size.height()/2 - 4.5*Card::H_OFFSET - Card::WIDTH/2 -
+                m_player_names[int(SOUTH)].boundingRect().height());
+
+}
 
 void MainWindow::resizeEvent(QResizeEvent* event) {
     QMainWindow::resizeEvent(event);
     QSize size(ui->graphicsView->size());
+    m_scene->setSceneRect(0, 0, size.width(), size.height());
     m_kittybuttonproxy->setPos(size.width()/2 - m_kittybuttonproxy->rect().width()/2, size.height()/2 - m_kittybuttonproxy->rect().height()/2);
     m_deck->reposition(size);
-    m_scene->setSceneRect(0, 0, size.width(), size.height());
-    //m_scene->update();
-    //m_game->reposition(m_scene);
+    repositionPlayerNames();
 }
 
 
@@ -215,7 +233,7 @@ void MainWindow::newGame() {
 
     NewGameDialog d;
     if(d.exec() == QDialog::Accepted) {
-        m_game = new Game(deck());
+        m_game = new Game(*m_deck);
 
         SetupPlayer** cfg = d.result();
         for(unsigned i=0; i<4; ++i) {
@@ -223,10 +241,10 @@ void MainWindow::newGame() {
                 Human* h = new Human(Seat(i), cfg[Seat(i)]->getName());
                 connect(h, SIGNAL(updateScene()), this, SLOT(updateDisplay()));
                 connect(h, SIGNAL(requestBidDialog(Human*,Bidding*)), this, SLOT(showBidDialog(Human*,Bidding*)));
-                connect(&biddialog(), SIGNAL(bidMade(Human*,Bid)), h, SLOT(bidMade(Human*,Bid)));
+                connect(m_biddialog, SIGNAL(bidMade(Human*,Bid)), h, SLOT(bidMade(Human*,Bid)));
                 connect(h, SIGNAL(requestKittyButtonEnabled(bool)), this, SLOT(enableKittyButton(bool)));
                 connect(h, SIGNAL(requestKittyButtonVisible(bool)), this, SLOT(showKittyButton(bool)));
-                connect(&kittybutton(), SIGNAL(clicked()), h, SLOT(kittyButtonClicked()));
+                connect(m_kittybutton, SIGNAL(clicked()), h, SLOT(kittyButtonClicked()));
                 m_game->addPlayer(h);
             } else {
                 m_game->addPlayer(new Computer(Seat(i), cfg[Seat(i)]->getName(), cfg[Seat(i)]->getScript(), m_open_hand));
@@ -309,7 +327,10 @@ void MainWindow::on_actionAbout_triggered()
 {
     QMessageBox::about(this, "Five Hundred",
                        "Five Hundred version " VERSION "\n\n"
-                       "GNU General Public License version 2.0\n"
-                       "Copyright 2011 Oliver Giles\n"
+                       "GNU General Public License version 3.0\n"
+                       "Copyright 2011 Oliver Giles\n\n"
+                       "http://fivehundred.sourceforge.net\n\n"
+                       "This application contains graphics based on SVG-cards\n\n"
+                       "This application is based on the Qt framework\n"
                        );
 }

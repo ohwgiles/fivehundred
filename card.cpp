@@ -1,12 +1,28 @@
 #include "card.hpp"
-#include <iostream>
-#include <QGraphicsSceneMouseEvent>
+/*!
+  \file card.cpp
+    Copyright 2011 Oliver Giles
 
-#include <QSize>
-#include "log.hpp"
+    This file is part of Five Hundred.
+
+    Five Hundred is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Five Hundred is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Five Hundred.  If not, see <http://www.gnu.org/licenses/>.
+*/
 #include "os.hpp"
-
-
+#include <QGraphicsSceneMouseEvent>
+#include <QSize>
+#include <iostream>
+#include "log.hpp"
 
 const char Card::className[] = "Card";
 
@@ -36,6 +52,7 @@ Card::Card(Suit suit, Value val):
         fatal(error<<"Invalid parameters to Card ctor");
     setPixmap(QPixmap(QString(os::GFX_PATH) + "back.png"));
     setOffset(-1*pixmap().width()/2, -1*pixmap().height()/2);
+    //setOffset(-1*(WIDTH/2), -1*(HEIGHT/2));
     m_new_display = m_old_display = {
         HIDDEN,
         1,
@@ -43,6 +60,7 @@ Card::Card(Suit suit, Value val):
         false,
         false
     };
+    update();
     hide();
 }
 
@@ -72,7 +90,7 @@ bool Card::isTrump(Suit trumps) const {
     trace;
     if(m_value == JOKER) return true;
     if(m_suit == trumps) return true;
-    if(m_value == JACK && m_suit == trumps.Complementary()) return true;
+    if(m_value == JACK && m_suit == trumps.complementary()) return true;
     return false;
 }
 
@@ -151,11 +169,11 @@ bool Card::raised() const {
 
 Suit Card::suit(Suit trump) const {
     if(m_value == JOKER) return trump;
-    else if(trump != Suit::NONE && m_value == JACK && m_suit == trump.Complementary()) return trump;
+    else if(trump != Suit::NONE && m_value == JACK && m_suit == trump.complementary()) return trump;
     else return m_suit;
 }
 Card::Value Card::value(Suit trump) const {
-    if (m_value == JACK && suit(trump) == trump) return m_suit == trump.Complementary() ? LEFT_BOWER : RIGHT_BOWER;
+    if (m_value == JACK && suit(trump) == trump) return m_suit == trump.complementary() ? LEFT_BOWER : RIGHT_BOWER;
     else return m_value;
 }
 
@@ -254,15 +272,15 @@ std::istream& operator>>(std::istream& is, Card& c) {
     } else if(tmp == "Ace") {
         v = Card::ACE;
     } else {
-		std::stringstream ss(tmp);
-		unsigned tmp_value;
-		ss >> tmp_value;
+        std::stringstream ss(tmp);
+        unsigned tmp_value;
+        ss >> tmp_value;
         if(ss.fail() || !(tmp_value >= Card::TWO && tmp_value <= Card::TEN)) {
             is.setstate(is.failbit);
             return is;
         } else {
-			v = Card::Value(tmp_value);
-		}
+            v = Card::Value(tmp_value);
+        }
     }
 
     is >> tmp;
@@ -278,10 +296,3 @@ void Card::mousePressEvent(QGraphicsSceneMouseEvent*) {
     trace;
     emit cardClicked(*this);
 }
-
-bool Card::CompareInHand::operator ()(const Card* lhs, const Card* rhs) {
-    trace;
-    if(lhs->suit(m_trumps) == rhs->suit(m_trumps)) return lhs->value(m_trumps) < rhs->value(m_trumps);
-    else return Suit::handcomparator(lhs->suit(m_trumps), rhs->suit(m_trumps));
-}
-

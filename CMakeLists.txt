@@ -60,11 +60,21 @@ set(CPACK_PACKAGE_VERSION_MINOR "1")
 find_package(Subversion REQUIRED)
 Subversion_WC_INFO(${CMAKE_CURRENT_SOURCE_DIR} SVN)
 set(CPACK_PACKAGE_VERSION_PATCH "0alpha~r${SVN_WC_REVISION}")
-set(CPACK_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH})
+set(VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH})
 
-file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/version.h.txt" "#define VERSION \"${CPACK_PACKAGE_VERSION}\"")
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/version.h.txt" "#define VERSION \"${VERSION}\"")
+add_custom_command(OUTPUT version.h COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/version.h.txt version.h)
 
-add_custom_target(version.h COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/version.h.txt version.h)
+find_package(Doxygen)
+if(DOXYGEN_FOUND)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+add_custom_target(doc
+${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+COMMENT "Generating API documentation with Doxygen" VERBATIM
+)
+endif(DOXYGEN_FOUND)
+
 
 add_dependencies(fivehundred version.h)
 #set(CPACK_PACKAGE_INSTALL_DIRECTORY "CMake ${CMake_VERSION_MAJOR}.${CMake_VERSION_MINOR}")

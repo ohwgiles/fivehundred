@@ -1,3 +1,22 @@
+/*!
+    \file main.cpp
+    Copyright 2011 Oliver Giles
+
+    This file is part of Five Hundred.
+
+    Five Hundred is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Five Hundred is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Five Hundred.  If not, see <http://www.gnu.org/licenses/>.
+*/
 #include <QtGui/QApplication>
 #include <QStringList>
 #include "mainwindow.hpp"
@@ -33,7 +52,7 @@ int main(int argc, char *argv[])
         if(arglist[i] == "--noninteractive" || arglist[i] == "-n")
             interactive = false;
         else if(arglist[i] == "--loglevel" || arglist[i] == "-l") {
-            if(setLogLevel(arglist[++i]) != true)
+            if(Log::setLogLevel(arglist[++i]) != true)
                 fatal(error<<"Unrecognised loglevel: " << arglist[i]);
         }
         else if(arglist[i] == "--open-hand" || arglist[i] == "-o")
