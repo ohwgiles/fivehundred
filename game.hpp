@@ -23,27 +23,37 @@
 #include <vector>
 #include <QThread>
 
+// Forward Declarations
 class Contract;
 class Player;
 class Deck;
 
+/*!
+  \class Game
+  \brief Maintains players, contracts, and scores
+
+  The Game is a worker thread spawned using QThread::start() or a non-interactive
+  game called using run().
+
+  Before starting a game you must add four players using the addPlayer method.
+
+  Game maintains a list of contracts, adding more until the score has reached positive
+  or negative 500. It handles scoring and dealing new hands at the start of each
+  contract, ensuring each contract begins play from a subsequent player position.
+*/
 class Game : public QThread {
     Q_OBJECT
 
 public:
-    Game(Deck& deck);
+    Game(Deck* deck);
     virtual ~Game();
 
-    void abort();
-
-    void addPlayer(Player* new_player);
-
+    void abort(); //!< Stop the current game
+    void addPlayer(Player* new_player); //!< Use this function to add four players to the game
     virtual void run();
 
-    void updateTricksWon(int northsouth, int eastwest);
-    void updateScene() { emit sceneUpdated(); }
-
 signals:
+    // Signals connect to the GUI thread
     void sceneUpdated();
     void updateNorthSouthScore(QString);
     void updateEastWestScore(QString);
@@ -51,16 +61,19 @@ signals:
 
 private:
     void updateScores(int northsouth, int eastwest);
-    Deck& m_deck;
-
-    friend class ScoreChart;
+    Deck* m_deck;
 
     Player* m_players[4];
     int m_num_players;
     Player* m_first_player;
+
     std::vector<Contract*> m_contracts;
 
+    // Scores
     std::vector<std::pair<int,int> > m_scores;
     std::pair<int, int> m_scores_sum;
+
+    //! The ScoreChart needs access to the individual contracts and scores
+    friend class ScoreChart;
 };
 #endif // GAME_H

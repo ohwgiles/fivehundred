@@ -26,8 +26,8 @@
 #include <QPropertyAnimation>
 #include <QGraphicsProxyWidget>
 #include <QParallelAnimationGroup>
-//#include <Qt/qgl.h>
-
+#include <QDesktopServices>
+#include <QUrl>
 #include <vector>
 
 #include "setupplayer.hpp"
@@ -62,7 +62,9 @@ MainWindow::MainWindow(bool open_hand, QWidget *parent) :
     for(Card* c: *m_deck)
         m_scene->addItem(c);
 
-    //ui->graphicsView->setViewport(new QGLWidget(QGLFormat(QGL::DirectRendering)));
+    // It would be nice to use direct rendering some time maybe?
+    // QGLWidget* gl = new QGLWidget(QGLFormat(QGL::DirectRendering));
+    //ui->graphicsView->setViewport(gl);
     ui->graphicsView->setStyleSheet(QString("background-image: url('") + os::GFX_PATH + "table.png');");
 
     // Add all extra widgets to scene
@@ -233,7 +235,7 @@ void MainWindow::newGame() {
 
     NewGameDialog d;
     if(d.exec() == QDialog::Accepted) {
-        m_game = new Game(*m_deck);
+        m_game = new Game(m_deck);
 
         SetupPlayer** cfg = d.result();
         for(unsigned i=0; i<4; ++i) {
@@ -309,6 +311,9 @@ void MainWindow::threadFinished() {
     if(m_next_action == NEW_GAME)
         newGame();
 
+    if(m_next_action == CLOSE)
+        close();
+
     m_next_action = NONE;
 }
 
@@ -326,11 +331,28 @@ void MainWindow::on_actionEnd_Game_triggered()
 void MainWindow::on_actionAbout_triggered()
 {
     QMessageBox::about(this, "Five Hundred",
-                       "Five Hundred version " VERSION "\n\n"
+                       "Five Hundred version " VERSION "\n"
+                       "http://fivehundred.sourceforge.net/\n\n"
                        "GNU General Public License version 3.0\n"
                        "Copyright 2011 Oliver Giles\n\n"
-                       "http://fivehundred.sourceforge.net\n\n"
-                       "This application contains graphics based on SVG-cards\n\n"
-                       "This application is based on the Qt framework\n"
+                       "This application contains graphics based on David Bellot's svg-cards (LGPL)\n"
+                       "http://svg-cards.sourceforge.net/\n\n"
+                       "This application is based on the Qt framework (LGPL)\n"
+                       "http://qt.nokia.com/"
                        );
+}
+
+void MainWindow::on_actionExit_triggered()
+{
+    m_next_action = CLOSE;
+    if(m_game)
+        on_actionEnd_Game_triggered();
+    else
+        close();
+}
+
+void MainWindow::on_actionWebsite_triggered()
+{
+    info << "Opening " << "http://fivehundred.sourceforge.net/";
+    QDesktopServices::openUrl(QUrl("http://fivehundred.sourceforge.net/"));
 }

@@ -40,7 +40,7 @@ void Game::abort() {
         p->abort();
 }
 
-Game::Game(Deck& deck) :
+Game::Game(Deck* deck) :
     QThread(),
     m_deck(deck),
     m_players({0,0,0,0}),
@@ -83,16 +83,16 @@ void Game::run() {
         emit newContract(m_contracts.back());
 
         info << "Dealing a new set of cards";
-        m_deck.deal(m_players[0]->hand, m_players[1]->hand, m_players[2]->hand, m_players[3]->hand, m_contracts.back()->m_kitty);
+        m_deck->deal(m_players[0]->hand, m_players[1]->hand, m_players[2]->hand, m_players[3]->hand, m_contracts.back()->m_kitty);
         for(Player* p: m_players) {
-            for(unsigned i=0; i< p->hand.size(); ++i) {
-                p->hand[i]->setLocation(Card::HAND);
-                p->hand[i]->setFromSeat(p->pos());
+            for(Card* c: p->hand) {
+                c->setLocation(Card::HAND);
+                c->setFromSeat(p->pos());
             }
         }
         for(Card* c: m_contracts.back()->m_kitty)
             c->setLocation(Card::HIDDEN);
-        emit updateScene();
+        emit sceneUpdated();
 
         Contract::ExitState state = m_contracts.back()->start();
         switch(state) {

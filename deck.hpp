@@ -29,6 +29,7 @@ public:
 
     typedef std::vector<Card*> Cards;
 
+    //! Shuffle all cards and deal them out
     void deal(Cards& playerOne, Cards& playerTwo, Cards& playerThree, Cards& playerFour, Cards& kitty);
 
     void reposition(QSize screen);

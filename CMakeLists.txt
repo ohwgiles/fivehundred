@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 2.6)
 project(fivehundred)
 
+# Package description and copyright
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Five Hundred is a card game")
+set(CPACK_PACKAGE_VENDOR "Oliver Giles")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
+
 # Grab required libraries
 find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
 find_package(Lua51 REQUIRED)
@@ -45,71 +51,31 @@ target_link_libraries(
 	${LUA_LIBRARIES}
 )
 
-install(TARGETS fivehundred RUNTIME DESTINATION bin)
-install(DIRECTORY gfx DESTINATION share/fivehundred PATTERN ".svn" EXCLUDE)
-install(DIRECTORY scripts DESTINATION share/fivehundred PATTERN ".svn" EXCLUDE)
-
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Five Hundred is a card game")
-
-set(CPACK_PACKAGE_VENDOR "Oliver Giles")
-set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README")
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
-
-set(CPACK_PACKAGE_VERSION_MAJOR "0")
-set(CPACK_PACKAGE_VERSION_MINOR "1")
+# Package Version
 find_package(Subversion REQUIRED)
 Subversion_WC_INFO(${CMAKE_CURRENT_SOURCE_DIR} SVN)
+set(CPACK_PACKAGE_VERSION_MAJOR "0")
+set(CPACK_PACKAGE_VERSION_MINOR "1")
 set(CPACK_PACKAGE_VERSION_PATCH "0alpha~r${SVN_WC_REVISION}")
 set(VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH})
-
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/version.h.txt" "#define VERSION \"${VERSION}\"")
 add_custom_command(OUTPUT version.h COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/version.h.txt version.h)
+add_dependencies(fivehundred version.h)
 
+# Doxygen documentation
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-add_custom_target(doc
-${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
-WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-COMMENT "Generating API documentation with Doxygen" VERBATIM
-)
+	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+	add_custom_target(doc ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} COMMENT "Generating API documentation with Doxygen" VERBATIM)
 endif(DOXYGEN_FOUND)
 
-
-add_dependencies(fivehundred version.h)
-#set(CPACK_PACKAGE_INSTALL_DIRECTORY "CMake ${CMake_VERSION_MAJOR}.${CMake_VERSION_MINOR}")
-
+# Installing and packaging
 if(WIN32 AND NOT UNIX)
-    # There is a bug in NSI that does not handle full unix paths properly. Make
-    # sure there is at least one set of four (4) backlasshes.
-    set(CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/gfx\\\\icon48.png")
-    set(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\\\MyExecutable.exe")
-    set(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} Five Hundred")
-    #set(CPACK_NSIS_HELP_LINK "http:\\\\\\\\www.my-project-home-page.org")
-    #set(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\www.my-personal-home-page.com")
-    #set(CPACK_NSIS_CONTACT "me@my-personal-home-page.com")
-    set(CPACK_NSIS_MODIFY_PATH ON)
-	set(CPACK_GENERATOR "NSIS")
+	include("package/win32.cmake")
 else()
-	configure_file(fivehundred.desktop.in fivehundred.desktop)
-	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/fivehundred.desktop DESTINATION share/applications)
-
-	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-		set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
-		set(CPACK_SYSTEM_NAME "amd64")
-	else()
-		set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "i386")
-		set(CPACK_SYSTEM_NAME "i386")
-	endif()
-    add_dependencies(fivehundred installprefix.h)
-    set(CPACK_DEBIAN_PACKAGE_NAME "fivehundred")
-    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++6 (>= 4.5), libqt4-core (>= 4.5), liblua5.1-0-dev")
-    set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Oliver Giles")
-	set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Five Hundred is a card game for four players similar to Euchre or Bridge. This cross-platform Qt-based implementation includes both a graphical mode and a non-interactive mode and Lua scripting engine to develop AI players")
-    set(CPACK_GENERATOR "DEB;TGZ")
+	include("package/linux.cmake")
 endif()
 include(CPack)
-
 
 # Add tests
 enable_testing()

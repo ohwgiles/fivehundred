@@ -73,6 +73,10 @@ private slots:
     void on_actionEnd_Game_triggered();
     void on_actionAbout_triggered();
 
+    void on_actionExit_triggered();
+
+    void on_actionWebsite_triggered();
+
 private:
     void newGame();
 
@@ -87,7 +91,7 @@ private:
 
     bool m_open_hand; //!< Whether the Computer players play open hand
 
-    enum Action { NONE, NEW_GAME, SHOW_SCORES };
+    enum Action { NONE, NEW_GAME, SHOW_SCORES, CLOSE };
     Action m_next_action; //!< Allow functionality after the worker thread has completed
 
     QLabel m_lbl_status;

@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
     } else {
         info << "Running in non-interactive mode";
         Deck d;
-        Game g(d);
+        Game g(&d);
         g.addPlayer(new Computer(SOUTH, names[SOUTH], scripts[SOUTH], open_hand));
         g.addPlayer(new Computer(WEST, names[WEST], scripts[WEST], open_hand));
         g.addPlayer(new Computer(NORTH, names[NORTH], scripts[NORTH], open_hand));

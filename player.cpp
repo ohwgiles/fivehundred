@@ -24,16 +24,11 @@
 #include "trick.hpp"
 #include "log.hpp"
 
-
-//#define CARD_H_OFFSET 20
-//#define CARD_EDGE_OFFSET 100
-
 const char Player::className[] = "Player";
 
 Player::Player(Seat pos, const QString& name) :
     QObject(),
     name(name),
-    m_player_ui_label(name),
     next(0),
     m_pos(pos)
 {
