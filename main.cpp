@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
 
     bool open_hand = args["--open-hand"].supplied;
     if(!args["--non-interactive"].supplied) {
-        a.setWindowIcon(QIcon(QString(os::GFX_PATH) + "icon.svg"));
+        a.setWindowIcon(QIcon(QString(os::GFX_PATH) + "icon.gif"));
         info << "Running in interactive mode";
         MainWindow gui(open_hand);
         return a.exec();
