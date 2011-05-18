@@ -57,9 +57,11 @@ struct os {
     static QString GFX_PATH; //!< Filesystem path to graphics
 
     static const char* getUserName(); //!< Return the current user name (to use for player name)
-
+#if defined(__linux)
     static void setStdoutColor(const char* colorcode); //!< Linux definition, will not be implemented otherwise
+#elif defined(__WIN32)
     static void setStdoutColor(unsigned colorcode); //!< Win32 definition, will not be implemented otherwise
+#endif
 };
 
 #endif // OS_HPP

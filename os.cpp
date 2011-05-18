@@ -63,9 +63,9 @@ os::os()
     // Get install path from that
     wcsncpy(szAppDirectory, szAppPath, wcsrchr(szAppPath, '\\') - szAppPath);
     // Hack to where the resources should be installed
-    AI_PATH = QString::fromWCharArray(szAppDirectory) + "/../share/fivehundred/scripts/";
+    AI_PATH = QString::fromWCharArray(szAppDirectory) + "/scripts/";
     AI_PATH.replace("\\","/");
-    GFX_PATH = QString::fromWCharArray(szAppDirectory) + "/../share/fivehundred/gfx/";
+    GFX_PATH = QString::fromWCharArray(szAppDirectory) + "/gfx/";
     GFX_PATH.replace("\\","/");
 
     hstdout = GetStdHandle(STD_OUTPUT_HANDLE);

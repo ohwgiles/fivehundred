@@ -20,6 +20,7 @@
 */
 #include <algorithm>
 #include "log.hpp"
+#include <ctime>
 
 Deck::Deck() {
     trace;

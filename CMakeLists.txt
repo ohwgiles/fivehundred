@@ -19,37 +19,13 @@ qt4_wrap_ui(UI_OUTPUT biddialog.ui mainwindow.ui scorechart.ui newgamedialog.ui 
 include_directories(${QT_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR} ${LUA_INCLUDE_DIR})
 
 # Define the executable
-add_definitions(-g --std=c++0x -Wall -Wextra -Werror)
-add_executable(fivehundred
-		${UI_OUTPUT}
-		${MOCS}
-		bid.cpp
-		biddialog.cpp
-		bidding.cpp
-		card.cpp
-		computer.cpp
-		contract.cpp
-		deck.cpp
-		game.cpp
-		human.cpp
-		log.cpp
-		main.cpp
-		mainwindow.cpp
-		newgamedialog.cpp
-		os.cpp
-		player.cpp
-		scorechart.cpp
-		setupplayer.cpp
-		suit.cpp
-		trick.cpp
-		)
-		
-target_link_libraries(
-	fivehundred
-	${QT_QTCORE_LIBRARY}
-	${QT_QTGUI_LIBRARY}
-	${LUA_LIBRARIES}
-)
+set(CMAKE_CXX_FLAGS "-g --std=c++0x -Wall -Wextra -Werror")
+list(APPEND FIVEHUNDRED_SOURCES
+	${UI_OUTPUT} ${MOCS} bid.cpp biddialog.cpp bidding.cpp card.cpp
+	computer.cpp contract.cpp deck.cpp game.cpp human.cpp log.cpp
+	main.cpp mainwindow.cpp newgamedialog.cpp os.cpp player.cpp
+	scorechart.cpp setupplayer.cpp suit.cpp trick.cpp)
+add_executable(fivehundred ${FIVEHUNDRED_SOURCES})
 
 # Package Version
 find_package(Subversion REQUIRED)
@@ -76,6 +52,14 @@ else()
 	include("package/linux.cmake")
 endif()
 include(CPack)
+
+
+target_link_libraries(
+	fivehundred
+	${QT_QTCORE_LIBRARY}
+	${QT_QTGUI_LIBRARY}
+	${LUA_LIBRARIES}
+)
 
 # Add tests
 enable_testing()
