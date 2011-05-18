@@ -22,6 +22,8 @@
 #include "game.hpp"
 #include <vector>
 #include <QThread>
+#include <QMutex>
+#include <QWaitCondition>
 
 // Forward Declarations
 class Contract;
@@ -49,6 +51,7 @@ public:
     virtual ~Game();
 
     void abort(); //!< Stop the current game
+    void wake();
     void addPlayer(Player* new_player); //!< Use this function to add four players to the game
     virtual void run();
 
@@ -58,6 +61,7 @@ signals:
     void updateNorthSouthScore(QString);
     void updateEastWestScore(QString);
     void newContract(Contract* current);
+    void contractComplete();
 
 private:
     void updateScores(int northsouth, int eastwest);
@@ -72,6 +76,9 @@ private:
     // Scores
     std::vector<std::pair<int,int> > m_scores;
     std::pair<int, int> m_scores_sum;
+
+    QMutex m_mutex;
+    QWaitCondition m_wait;
 
     //! The ScoreChart needs access to the individual contracts and scores
     friend class ScoreChart;

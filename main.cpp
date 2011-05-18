@@ -26,9 +26,30 @@
 #include "computer.hpp"
 #include "log.hpp"
 #include "os.hpp"
+#include <iostream>
 
-void usage() {
-    error << "Usage TODO";
+struct Arg {
+    Arg(){}
+    Arg(QString shortName, QString desc, int args=0) :
+        shortName(shortName), description(desc), numArgs(args), supplied(false)
+    {}
+    QString shortName;
+    QString description;
+    int numArgs;
+    bool supplied;
+    QStringList args;
+};
+
+void usage(std::map<QString, Arg>& args, int exitcode) {
+    std::cout << "Five Hundred card game\nUsage:\n";
+    for(std::pair<const QString, Arg>& arg : args) {
+
+        std::cout << "  " << arg.first;
+        if(arg.second.shortName != "") std::cout << "," << arg.second.shortName;
+        for(int i=0; i<arg.second.numArgs; ++i) std::cout << " <string>";
+        std::cout << "\n      " << arg.second.description << "\n";
+    }
+    exit(exitcode);
 }
 
 int main(int argc, char *argv[])
@@ -39,49 +60,70 @@ int main(int argc, char *argv[])
     qRegisterMetaType<Seat>("Seat");
     qRegisterMetaType<std::vector<Card*>>("std::vector<Card*>");
 
-    bool interactive = true;
-    bool open_hand = false;
-    QString names[4] = {"South", "West", "North", "East"};
-    QString scripts[4];
-    for(QString& s: scripts) {
-        s = QString(os::AI_PATH) + "Jed.lua";
-    };
+    std::map<QString, Arg> args;
+    args["--help"] = Arg("-h","Display usage message");
+    args["--non-interactive"] = Arg("-n","Run without a GUI");
+    args["--open-hand"] = Arg("-o","Computers play open hand");
+    args["--loglevel"] = Arg("-l","logging level (TRACE, DEBUG, USER, INFO, ERROR)",1);
+    args["--south-name"] = Arg("","Name of player at South",1);
+    args["--east-name"] = Arg("","Name of player at East",1);
+    args["--north-name"] = Arg("","Name of player at North",1);
+    args["--west-name"] = Arg("","Name of player at West",1);
+    args["--south-ai"] = Arg("", "Path to Lua script to use for South AI",1);
+    args["--east-ai"] = Arg("", "Path to Lua script to use for East AI",1);
+    args["--north-ai"] = Arg("", "Path to Lua script to use for North AI",1);
+    args["--west-ai"] = Arg("", "Path to Lua script to use for West AI",1);
 
     QStringList arglist = a.arguments();
     for(int i=1; i<arglist.length(); ++i) {
-        if(arglist[i] == "--noninteractive" || arglist[i] == "-n")
-            interactive = false;
-        else if(arglist[i] == "--loglevel" || arglist[i] == "-l") {
-            if(Log::setLogLevel(arglist[++i]) != true)
-                fatal(error<<"Unrecognised loglevel: " << arglist[i]);
-        }
-        else if(arglist[i] == "--open-hand" || arglist[i] == "-o")
-            open_hand = true;
-        else if(arglist[i] == "--south-name")
-            names[SOUTH] = arglist[++i];
-        else if(arglist[i] == "--west-name")
-            names[WEST] = arglist[++i];
-        else if(arglist[i] == "--north-name")
-            names[NORTH] = arglist[++i];
-        else if(arglist[i] == "--east-name")
-            names[EAST] = arglist[++i];
-        else if(arglist[i] == "--south-ai")
-            scripts[SOUTH] = arglist[++i];
-        else if(arglist[i] == "--west-ai")
-            scripts[WEST] = arglist[++i];
-        else if(arglist[i] == "--north-ai")
-            scripts[NORTH] = arglist[++i];
-        else if(arglist[i] == "--east-ai")
-            scripts[EAST] = arglist[++i];
 
-        else {
-            usage();
-            return 1;
+        for(std::pair<const QString, Arg>& arg : args) {
+            if(arglist[i] == arg.first || (arg.second.shortName != "" && arglist[i] == arg.second.shortName)) {
+                arg.second.supplied = true;
+                if(arg.second.numArgs > arglist.length() - i - 1) {
+                    error<<"Not enough arguments supplied to " << arglist[i];
+                    usage(args, 1);
+                }
+                for(int j=0; j<arg.second.numArgs; ++j)
+                    arg.second.args << arglist[++i];
+                goto next;
+            }
+        }
+        error<<"Unrecognised argument: " << arglist[i];
+        usage(args,1);
+        next:
+            continue;
+    }
+
+    if(args["--help"].supplied) {
+        usage(args, 0);
+    }
+
+    if(args["--loglevel"].supplied) {
+        QString level = args["--loglevel"].args.first();
+        if(Log::setLogLevel(level) != true) {
+            error<<"Unrecognised loglevel: " << level;
+            usage(args, 1);
         }
     }
 
-    if(interactive) {
-        a.setWindowIcon(QIcon(QString(os::GFX_PATH) + "icon24.png"));
+    for(QString str : {"--south-name","--west-name","--north-name","--east-name"}) {
+        if(!args[str].supplied) {
+            QString s = str;
+            s.remove("-name");
+            s.remove("--");
+            args[str].args << s;
+        }
+    }
+
+    for(QString str : {"--south-ai","--west-ai","--north-ai","--east-ai"}) {
+        if(!args[str].supplied)
+            args[str].args << QString(os::AI_PATH) + "Patrick.lua";
+    }
+
+    bool open_hand = args["--open-hand"].supplied;
+    if(!args["--non-interactive"].supplied) {
+        a.setWindowIcon(QIcon(QString(os::GFX_PATH) + "icon.svg"));
         info << "Running in interactive mode";
         MainWindow gui(open_hand);
         return a.exec();
@@ -89,10 +131,10 @@ int main(int argc, char *argv[])
         info << "Running in non-interactive mode";
         Deck d;
         Game g(&d);
-        g.addPlayer(new Computer(SOUTH, names[SOUTH], scripts[SOUTH], open_hand));
-        g.addPlayer(new Computer(WEST, names[WEST], scripts[WEST], open_hand));
-        g.addPlayer(new Computer(NORTH, names[NORTH], scripts[NORTH], open_hand));
-        g.addPlayer(new Computer(EAST, names[EAST], scripts[EAST], open_hand));
+        g.addPlayer(new Computer(SOUTH, args["--south-name"].args.first(),  args["--south-ai"].args.first(), open_hand));
+        g.addPlayer(new Computer(WEST, args["--west-name"].args.first(), args["--west-ai"].args.first(), open_hand));
+        g.addPlayer(new Computer(NORTH, args["--north-name"].args.first(), args["--north-ai"].args.first(), open_hand));
+        g.addPlayer(new Computer(EAST, args["--east-name"].args.first(), args["--east-ai"].args.first(), open_hand));
         g.run();
 
         info << "Exiting...";

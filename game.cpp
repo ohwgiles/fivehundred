@@ -27,10 +27,12 @@
 
 
 void Game::updateScores(int northsouth, int eastwest) {
-    info;
+    trace;
     m_scores.push_back(std::pair<int,int>(northsouth, eastwest));
     m_scores_sum.first += m_scores.back().first;
+    info << m_players[NORTH]->name << "/" << m_players[SOUTH]->name << "'s score is " << m_scores_sum.first;
     m_scores_sum.second += m_scores.back().second;
+    info << m_players[EAST]->name << "/" << m_players[WEST]->name << "'s score is " << m_scores_sum.second;
 }
 
 void Game::abort() {
@@ -38,6 +40,11 @@ void Game::abort() {
     m_contracts.back()->abort();
     for(Player* p: m_players)
         p->abort();
+}
+
+void Game::wake() {
+    trace;
+    m_wait.wakeAll();
 }
 
 Game::Game(Deck* deck) :
@@ -117,8 +124,17 @@ void Game::run() {
                 updateScores(10 * (c->tricksWon(m_players[NORTH]) + c->tricksWon(m_players[SOUTH])), (c->successful() ? 1 : -1) * p.bid.worth());
             emit(updateNorthSouthScore(QString::number(m_scores_sum.first)));
             emit(updateEastWestScore(QString::number(m_scores_sum.second)));
-            if(m_scores_sum.first >= 500 || m_scores_sum.first <= -500 || m_scores_sum.second >= 500 || m_scores_sum.second <= -500)
+            if(receivers(SIGNAL(contractComplete())) > 0) {
+                emit(contractComplete());
+                m_wait.wait(&m_mutex);
+            }
+            if(m_scores_sum.first >= 500 || m_scores_sum.second <= -500) {
+                info << m_players[NORTH]->name << "/" << m_players[SOUTH]->name << " won the game";
                 return;
+            } else if(m_scores_sum.second >= 500 || m_scores_sum.first <= -500) {
+                info << m_players[EAST]->name << "/" << m_players[WEST]->name << " won the game";
+                return;
+            }
             disconnect(m_contracts.back());
             m_first_player = m_first_player->next;
         }

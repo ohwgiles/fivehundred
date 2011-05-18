@@ -65,7 +65,7 @@ MainWindow::MainWindow(bool open_hand, QWidget *parent) :
     // It would be nice to use direct rendering some time maybe?
     // QGLWidget* gl = new QGLWidget(QGLFormat(QGL::DirectRendering));
     //ui->graphicsView->setViewport(gl);
-    ui->graphicsView->setStyleSheet(QString("background-image: url('") + os::GFX_PATH + "table.png');");
+    ui->graphicsView->setStyleSheet(QString("background-image: url('") + os::GFX_PATH + "table.gif');");
 
     // Add all extra widgets to scene
     m_kittybuttonproxy = m_scene->addWidget(m_kittybutton);
@@ -255,10 +255,12 @@ void MainWindow::newGame() {
         }
 
         connect(m_game, SIGNAL(sceneUpdated()), this, SLOT(updateDisplay()));
-        connect(m_game, SIGNAL(newContract(Contract*)), this, SLOT(connectContract(Contract*)));
+        connect(m_game, SIGNAL(newContract(Contract*)), this, SLOT(connectContract(Contract*)), Qt::DirectConnection);
         connect(m_game, SIGNAL(finished()), this, SLOT(threadFinished()));
         connect(m_game, SIGNAL(updateNorthSouthScore(QString)), &m_lbl_score_ns, SLOT(setText(QString)));
         connect(m_game, SIGNAL(updateEastWestScore(QString)), &m_lbl_score_ew, SLOT(setText(QString)));
+        connect(m_game, SIGNAL(contractComplete()), this, SLOT(showScores()));
+
         m_lbl_team_ns.setText(cfg[0]->getName() + "/" + cfg[2]->getName());
         m_lbl_team_ew.setText(cfg[1]->getName() + "/" + cfg[3]->getName());
 
@@ -292,17 +294,22 @@ void MainWindow::connectContract(Contract* contract) {
     connect(contract, SIGNAL(updateEastWestTricks(QString)), &m_lbl_tricks_ew, SLOT(setText(QString)));
     connect(contract, SIGNAL(updateNorthSouthTricks(QString)), &m_lbl_tricks_ns, SLOT(setText(QString)));
     connect(contract, SIGNAL(updateBid(QString)), &m_lbl_bid, SLOT(setText(QString)));
-    connect(contract, SIGNAL(animatePlayCard(Card*)), this, SLOT(animatePlayCard(Card*)));
-    connect(contract, SIGNAL(animateCollectCards(std::vector<Card*>,Seat)), this, SLOT(animateCollectCards(std::vector<Card*>,Seat)));
+    connect(contract, SIGNAL(animatePlayCard(Card*)), this, SLOT(animatePlayCard(Card*)), Qt::QueuedConnection);
+    connect(contract, SIGNAL(animateCollectCards(std::vector<Card*>,Seat)), this, SLOT(animateCollectCards(std::vector<Card*>,Seat)), Qt::QueuedConnection);
     connect(this, SIGNAL(animationComplete()), contract, SLOT(wake()), Qt::DirectConnection);
+}
+
+void MainWindow::showScores() {
+    ScoreChart* s = new ScoreChart(m_game, this);
+    s->exec();
+    delete s;
+    m_game->wake();
 }
 
 void MainWindow::threadFinished() {
     info << "thread done";
     resetUI();
     if(m_next_action == SHOW_SCORES) {
-        ScoreChart* s = new ScoreChart(m_game, this);
-        s->exec();
     }
 
     delete m_game;
@@ -323,8 +330,10 @@ void MainWindow::on_actionEnd_Game_triggered()
     if(m_game) {
         QMessageBox m(QMessageBox::Warning, "Game in progress", "Are you sure you wish to abort the current game?", QMessageBox::Yes | QMessageBox::No);
 
-        if(m.exec() == QMessageBox::Yes)
+        if(m.exec() == QMessageBox::Yes) {
+            m_next_action = NONE;
             m_game->abort();
+        }
     }
 }
 
@@ -335,7 +344,7 @@ void MainWindow::on_actionAbout_triggered()
                        "http://fivehundred.sourceforge.net/\n\n"
                        "GNU General Public License version 3.0\n"
                        "Copyright 2011 Oliver Giles\n\n"
-                       "This application contains graphics based on David Bellot's svg-cards (LGPL)\n"
+                       "This application contains graphics based on svg-cards (LGPL)\n"
                        "http://svg-cards.sourceforge.net/\n\n"
                        "This application is based on the Qt framework (LGPL)\n"
                        "http://qt.nokia.com/"

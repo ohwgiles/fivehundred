@@ -50,7 +50,7 @@ Card::Card(Suit suit, Value val):
     trace;
     if(suit == Suit::NONE && val != JOKER)
         fatal(error<<"Invalid parameters to Card ctor");
-    setPixmap(QPixmap(QString(os::GFX_PATH) + "back.png"));
+    setPixmap(QPixmap(QString(os::GFX_PATH) + "back.gif"));
     setOffset(-1*pixmap().width()/2, -1*pixmap().height()/2);
     //setOffset(-1*(WIDTH/2), -1*(HEIGHT/2));
     m_new_display = m_old_display = {
@@ -67,9 +67,9 @@ Card::Card(Suit suit, Value val):
 Card::~Card() {}
 
 QString Card::findImage(Suit suit, int value) {
-    if(value==JOKER) return QString(os::GFX_PATH) + "53.png";
+    if(value==JOKER) return QString(os::GFX_PATH) + "53.gif";
     int cardnum = (suit==Suit::CLUBS ? 0 : suit == Suit::DIAMONDS ? 1 : suit == Suit::HEARTS ? 2 : 3)*13 + value - 1;
-    return QString(os::GFX_PATH) + (cardnum<=9?"0":"")+QString::number(cardnum)+".png";
+    return QString(os::GFX_PATH) + (cardnum<=9?"0":"")+QString::number(cardnum)+".gif";
 }
 
 
@@ -199,7 +199,7 @@ void Card::reposition(QSize screen) {
         if(m_new_display.faceup)
             setPixmap(QPixmap(findImage(m_suit,m_value)));
         else
-            setPixmap(QPixmap(QString(os::GFX_PATH) + "back.png"));
+            setPixmap(QPixmap(QString(os::GFX_PATH) + "back.gif"));
         m_old_display.faceup = m_new_display.faceup;
     }
 
@@ -207,17 +207,14 @@ void Card::reposition(QSize screen) {
         switch(m_new_display.location) {
         case HAND:
             setZValue(20 + int(2*m_new_display.relative_offset));
-            setOpacity(1);
             show();
             break;
         case TRICK:
             setZValue(-50 + int(m_new_display.relative_offset));
-            setOpacity(1);
             show();
             break;
         case HIDDEN:
             hide();
-            setOpacity(1);
             break;
         }
         m_old_display.location = m_new_display.location;
@@ -226,6 +223,7 @@ void Card::reposition(QSize screen) {
 
     m_old_display.raised = m_new_display.raised;
 
+    setOpacity(1);
     setPos(expectedPosition(screen, m_new_display.location));
 }
 

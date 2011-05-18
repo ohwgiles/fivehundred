@@ -19,7 +19,7 @@ qt4_wrap_ui(UI_OUTPUT biddialog.ui mainwindow.ui scorechart.ui newgamedialog.ui 
 include_directories(${QT_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR} ${LUA_INCLUDE_DIR})
 
 # Define the executable
-add_definitions(--std=c++0x -Wall -Wextra -Werror)
+add_definitions(-g --std=c++0x -Wall -Wextra -Werror)
 add_executable(fivehundred
 		${UI_OUTPUT}
 		${MOCS}

@@ -65,9 +65,7 @@
      <string>Help</string>
     </property>
     <addaction name="actionWebsite"/>
-    <addaction name="actionHow_to_Play"/>
     <addaction name="separator"/>
-    <addaction name="actionTranslate"/>
     <addaction name="separator"/>
     <addaction name="actionAbout"/>
    </widget>
@@ -91,16 +89,6 @@
   <action name="actionWebsite">
    <property name="text">
     <string>Website</string>
-   </property>
-  </action>
-  <action name="actionHow_to_Play">
-   <property name="text">
-    <string>How to Play</string>
-   </property>
-  </action>
-  <action name="actionTranslate">
-   <property name="text">
-    <string>Translate</string>
    </property>
   </action>
   <action name="actionAbout">

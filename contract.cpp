@@ -143,7 +143,6 @@ Contract::ExitState Contract::start() {
 
             m_current_player = winner;
         }
-
         return SUCCESS;
     } else {
         return NOBIDS;
