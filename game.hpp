@@ -62,6 +62,7 @@ signals:
     void updateEastWestScore(QString);
     void newContract(Contract* current);
     void contractComplete();
+    void contractInvalidated();
 
 private:
     void updateScores(int northsouth, int eastwest);

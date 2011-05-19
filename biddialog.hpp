@@ -20,7 +20,7 @@
     along with Five Hundred.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <QDialog>
-
+#include <QPoint>
 #include "bid.hpp"
 
 class Bidding;
@@ -39,6 +39,10 @@ public:
     ~BidDialog();
 
     void show(Human* player, Bidding* bids);
+
+protected:
+    virtual void moveEvent(QMoveEvent *);
+    QPoint m_pos;
 
 private:
     Ui::BidDialog *ui;

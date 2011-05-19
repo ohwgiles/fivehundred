@@ -105,10 +105,14 @@ void Game::run() {
         switch(state) {
         case Contract::REDEAL:
         case Contract::NOBIDS:
-            error << "The contract was invalidated, restarting it";
+            info << "The contract was invalidated, restarting it";
             disconnect(m_contracts.back());
             delete m_contracts.back();
             m_contracts.pop_back();
+            if(receivers(SIGNAL(contractInvalidated()))) {
+                emit(contractInvalidated());
+                m_wait.wait(&m_mutex);
+            }
             continue;
             break;
         case Contract::ABORT:

@@ -22,6 +22,7 @@
 #include "player.hpp"
 #include "bidding.hpp"
 #include <QVariant>
+#include <QMoveEvent>
 #include <sstream>
 #include "log.hpp"
 
@@ -95,6 +96,7 @@ void BidDialog::show(Human* player, Bidding* bids) {
     }
     ui->tableWidget->reset();
 
+    this->move(m_pos);
     QDialog::show();
 }
 
@@ -108,6 +110,11 @@ void BidDialog::on_pushButton_2_clicked()
 {
     trace;
     this->reject();
+}
+
+void BidDialog::moveEvent(QMoveEvent* event) {
+    QDialog::moveEvent(event);
+    m_pos = event->pos();
 }
 
 void BidDialog::dialog_accepted() {

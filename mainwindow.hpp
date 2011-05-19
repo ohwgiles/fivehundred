@@ -68,6 +68,7 @@ protected slots:
     void threadFinished(); //!< The worker thread has completed, i.e. Game over
     void connectContract(Contract* contract);
     void showScores();
+    void contractInvalid();
 
 private slots:
     void on_actionNew_Game_triggered();

@@ -260,6 +260,7 @@ void MainWindow::newGame() {
         connect(m_game, SIGNAL(updateNorthSouthScore(QString)), &m_lbl_score_ns, SLOT(setText(QString)));
         connect(m_game, SIGNAL(updateEastWestScore(QString)), &m_lbl_score_ew, SLOT(setText(QString)));
         connect(m_game, SIGNAL(contractComplete()), this, SLOT(showScores()));
+        connect(m_game, SIGNAL(contractInvalidated()), this, SLOT(contractInvalid()));
 
         m_lbl_team_ns.setText(cfg[0]->getName() + "/" + cfg[2]->getName());
         m_lbl_team_ew.setText(cfg[1]->getName() + "/" + cfg[3]->getName());
@@ -299,6 +300,12 @@ void MainWindow::connectContract(Contract* contract) {
     connect(this, SIGNAL(animationComplete()), contract, SLOT(wake()), Qt::DirectConnection);
 }
 
+void MainWindow::contractInvalid() {
+    trace;
+    QMessageBox::information(this, "Contract Invalid", "No-one placed a bid. The hand will be re-dealt");
+    m_game->wake();
+}
+
 void MainWindow::showScores() {
     ScoreChart* s = new ScoreChart(m_game, this);
     s->exec();
@@ -332,6 +339,8 @@ void MainWindow::on_actionEnd_Game_triggered()
 
         if(m.exec() == QMessageBox::Yes) {
             m_next_action = NONE;
+            if(!m_biddialog->isHidden())
+                m_biddialog->close();
             m_game->abort();
         }
     }

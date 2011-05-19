@@ -73,6 +73,8 @@ void Human::sortHand(Suit trumps) {
 
 Hand Human::yourTurnToSelectKitty(const Hand& kitty) {
     debug;
+    m_kitty_discards.clear();
+
     // Add the kitty to your hand and set them raised
     for(Hand::const_iterator c = kitty.begin(); c != kitty.end(); ++c) {
         hand.push_back(*c);
