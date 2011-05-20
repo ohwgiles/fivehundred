@@ -29,10 +29,8 @@ Bid::Bid(Type bid) :
         m_suit(Suit::NONE)
 {
     trace;
-
-    if(bid == PASS || bid == CLOSED_MISERE || bid == OPEN_MISERE) {} else {
-        error << "Unknown bid type: " << bid;
-    }
+    if(bid == NORMAL)
+        fatal(error<<"Wrong constructor for a suit bid");
 }
 
 Bid::Bid(Suit suit, int numTricks) :
@@ -41,17 +39,37 @@ Bid::Bid(Suit suit, int numTricks) :
         m_tricks(numTricks)
 {
     trace;
-    if(!(suit == Suit::SPADES || suit == Suit::CLUBS || suit == Suit::DIAMONDS || suit == Suit::HEARTS || suit == Suit::NONE))
-		fatal(error<<"Invalid suit");
     if(!(numTricks >= 5 && numTricks <= 10))
-		fatal(error<<"Invalid number of tricks: "<<numTricks);
+        fatal(error<<"Invalid number of tricks: "<<numTricks);
 }
 
-bool Bid::operator <(const Bid& other) const {
+const Suit& Bid::suit() const {
+    if(m_type != NORMAL)
+        fatal(error<<"Cannot determine suit of bid: "<<*this);
+    return m_suit;
+}
+
+int Bid::tricks() const {
+    if(m_type != NORMAL)
+        fatal(error<<"Invalid to ask for number of tricks for bid: "<<*this);
+    return m_tricks;
+}
+
+bool Bid::operator<(const Bid& other) const {
     trace;
+    return worth() < other.worth();
+    /*
     if(*this == other) return false;
     if((m_type == other.m_type) == NORMAL) {
-        if(m_tricks == other.m_tricks) return m_suit < other.m_suit;
+        if(m_tricks == other.m_tricks) {
+            if(m_suit == other.m_suit) return false;
+            switch(m_suit) {
+            case Suit::SPADES: return true;
+            case Suit::CLUBS: return other.m_suit != Suit::SPADES;
+            case Suit::DIAMONDS: return other.m_suit == Suit::HEARTS || other.m_suit == Suit::NONE;
+            case Suit::HEARTS: return other.m_suit == Suit::NONE;
+            }
+        }
         else return m_tricks < other.m_tricks;
     } else {
         if(m_type == PASS) return true;
@@ -71,10 +89,10 @@ bool Bid::operator <(const Bid& other) const {
             if(other.m_type == CLOSED_MISERE) return false;
         }
     }
-    fatal(error << "Could not compare bids: " << *this << " and " << other);
+    fatal(error << "Could not compare bids: " << *this << " and " << other);*/
 }
 
-bool Bid::operator ==(const Bid& other) const {
+bool Bid::operator==(const Bid& other) const {
     trace;
     if(m_type == other.m_type) {
         if(m_type == NORMAL) {
@@ -84,11 +102,30 @@ bool Bid::operator ==(const Bid& other) const {
 }
 
 int Bid::worth() const {
-    if(m_type == PASS) return 0;
-    if(m_type == CLOSED_MISERE) return 250;
-    if(m_type == OPEN_MISERE) return 500;
-    debug << *this << " is worth " << 100*(m_tricks-6) + 20*(int(m_suit) + 2);
-    return 100*(m_tricks-6) + 20*(int(m_suit) + 2);
+    int x;
+    switch(m_type) {
+    case PASS:
+        x = 0;
+        break;
+    case CLOSED_MISERE:
+        x = 230;
+        break;
+    case OPEN_MISERE:
+        x = 430;
+        break;
+    case NORMAL:
+        switch(m_suit) {
+        case Suit::SPADES: x = 40; break;
+        case Suit::CLUBS: x = 60; break;
+        case Suit::DIAMONDS: x = 80; break;
+        case Suit::HEARTS: x = 100; break;
+        case Suit::NONE: x = 120; break;
+        }
+        x += 100*(m_tricks-6);
+        break;
+    }
+    debug << *this << " is worth " << x;
+    return x;
 }
 
 

@@ -306,7 +306,7 @@ Bid Computer::yourTurnToBid(const Bidding* bidlist) {
     }, 1, [&]() {
         Bid* b = lua_extract<Bid>(L);
         if(!(*b == Bid::PASS) && bidlist->hasWinner() && *b < bidlist->winner().bid)
-            error << "You tried to bid " << *b << " but " << bidlist->winner().player << " had already bid " << bidlist->winner().bid;
+            fatal(error << "You tried to bid " << *b << " but " << bidlist->winner().player << " had already bid " << bidlist->winner().bid);
 //bidlist->bid(this, Bid(*b));
 myBid = *b;
 /*
@@ -378,7 +378,7 @@ Hand Computer::yourTurnToSelectKitty(const Hand& kitty) {
             //emit this->kittyChosen(discards);
 
         } else
-            error << __func__ << " must return table of discards";
+            fatal(error << __func__ << " must return table of discards");
         lua_pop(L, 1);
     });
     return discards;

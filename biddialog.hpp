@@ -19,10 +19,11 @@
     You should have received a copy of the GNU General Public License
     along with Five Hundred.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include "bid.hpp"
 #include <QDialog>
 #include <QPoint>
-#include "bid.hpp"
 
+//Forward Declarations
 class Bidding;
 class Human;
 
@@ -30,10 +31,12 @@ namespace Ui {
     class BidDialog;
 }
 
-class BidDialog : public QDialog
-{
+/*!
+  \class BidDialog
+  \brief The dialog that asks which bid you want to place
+*/
+class BidDialog : public QDialog {
     Q_OBJECT
-
 public:
     explicit BidDialog(QWidget *parent = 0);
     ~BidDialog();
@@ -43,8 +46,6 @@ public:
 protected:
     virtual void moveEvent(QMoveEvent *);
     QPoint m_pos;
-
-private:
     Ui::BidDialog *ui;
     Human* m_player;
 

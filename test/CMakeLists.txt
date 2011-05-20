@@ -1,25 +1,16 @@
 # Set up dependencies
-find_package(GTEST QUIET)
-include_directories(${CMAKE_SOURCE_DIR})
+include_directories(${CMAKE_SOURCE_DIR} ${GTEST_INCLUDE_DIRS})
 
 # Convenience macro
 macro(add_gtest TESTNAME)
-	add_executable(${TESTNAME} ${TESTNAME}.cpp )
-	if(${ARGV1}) 
-	message("i depend! ${TESTNAME}")		
-set_target_properties(${TESTNAME} PROPERTIES LINK_DEPENDS ${ARGV1})
-	endif()
-	target_link_libraries(${TESTNAME} ${GTEST_LIBRARIES} fivehundredcore)
-	add_custom_command(TARGET ${TESTNAME} POST_BUILD COMMAND ${TESTNAME} ${ARGV1})
+    add_executable(${TESTNAME} ${TESTNAME}.cpp)
+    target_link_libraries(${TESTNAME} 500 ${GTEST_LIBRARIES} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
+    add_custom_command(TARGET ${TESTNAME} POST_BUILD COMMAND ${TESTNAME})
 endmacro()
 
-if(${GTEST_FOUND})
-
-# Add tests here	
+# Add tests here
 add_gtest(test_trumps)
 add_gtest(test_bids)
-add_gtest(test_lua ${CMAKE_CURRENT_SOURCE_DIR}/test.lua)
-add_gtest(test_computer)
-
-
-endif()
+add_gtest(test_bidding)
+#add_gtest(test_lua ${CMAKE_CURRENT_SOURCE_DIR}/test.lua)
+#add_gtest(test_computer)

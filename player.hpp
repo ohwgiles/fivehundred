@@ -44,7 +44,7 @@ class Player : public QObject
 {
     Q_OBJECT
 public:
-    //! Every Lua-accessable object must have a string identifier
+    //! Every Lua-accessible object must have a string identifier
     static const char className[];
 
     Player(Seat pos, const QString& name);

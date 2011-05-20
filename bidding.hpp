@@ -19,20 +19,30 @@
     You should have received a copy of the GNU General Public License
     along with Five Hundred.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include "bid.hpp"
 #include <vector>
 #include <map>
-#include "bid.hpp"
 
+//Forward Declarations
 class Player;
 
+/*!
+  \class Bidding
+  \brief Convenience wrapper around a vector of Bid objects
+*/
 class Bidding  {
 public:
+    /*!
+      \class Pair
+      \brief More descriptive than std::pair
+    */
     struct Pair {
         Pair(Player* player, Bid bid) : player(player), bid(bid) {}
         Pair() : player(0), bid(Bid::PASS) {}
         Player* player;
         Bid bid;
     };
+
     void bid(Player* player, Bid bid);
     bool hasWinner() const;
     bool complete() const;

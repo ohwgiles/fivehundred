@@ -19,21 +19,28 @@
     You should have received a copy of the GNU General Public License
     along with Five Hundred.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <iosfwd>
-#include <QObject>
-#include <QGraphicsPixmapItem>
 #include "suit.hpp"
 #include "seat.hpp"
+#include <QObject>
+#include <QGraphicsPixmapItem>
+#include <iosfwd>
 
+// Forward Declarations
 class QGraphicsSceneMouseEvent;
 class Player;
 
+/*!
+  \class Card
+  \brief Playing card object
+
+  Complex object that knows too much about what's going on outside its world
+*/
 class Card : public QObject, public QGraphicsPixmapItem {
     Q_OBJECT
     Q_PROPERTY(QPointF position READ pos WRITE setPos)
     Q_PROPERTY(qreal opacity READ opacity WRITE setOpacity)
-
 public:
+    //! Every Lua-accessible object must have a string identifier
     static const char className[];
 
     enum Value { TWO=2, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE, LEFT_BOWER, RIGHT_BOWER, JOKER };
@@ -53,7 +60,6 @@ public:
     virtual ~Card();
 
     void reposition(QSize screen);
-
 
     void setLocation(Location l) const;
     void setHandOffset(unsigned i, unsigned sz) const;
@@ -76,6 +82,15 @@ protected:
     Suit m_suit;
     Value m_value;
 
+    /*!
+      \class Display
+      \brief Members controlling the card's appearance
+
+      This is an evil struct that allows the Card to position
+      itself in the scene. Eventually should be refactored so
+      this knowledge is spread over the current owner of the
+      Card, whether it be the Player or the Trick
+    */
     struct Display {
         Location location;
         double relative_offset;
@@ -84,8 +99,8 @@ protected:
         bool faceup;
     };
 
-    mutable Display m_new_display;
-    Display m_old_display;
+    mutable Display m_new_display; //!< Asynchronous behaviour
+    Display m_old_display; //!< Asynchronous behaviour
 
     static QString findImage(Suit suit, int value);
 

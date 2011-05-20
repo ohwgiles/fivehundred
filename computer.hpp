@@ -21,11 +21,15 @@
 */
 #include "player.hpp"
 
+// Forward Declarations
 struct lua_State;
 struct LuaRegistration;
 
-class Computer : public Player
-{
+/*!
+  \class Computer
+  \brief Player controlled by a Lua script
+*/
+class Computer : public Player {
 public:
     Computer(Seat pos, const QString& name, const QString& script, bool play_open_hand);
     virtual ~Computer();

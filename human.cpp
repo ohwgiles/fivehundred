@@ -145,7 +145,7 @@ void Human::handDealt() {
 }
 
 void Human::kittyButtonClicked() {
-    info;
+    trace;
     for(Hand::iterator it=hand.begin(); it!=hand.end(); ++it) {
         disconnect(*it, SIGNAL(cardClicked(Card&)), this, SLOT(cardSwapped(Card&)));
         if((*it)->raised()) {

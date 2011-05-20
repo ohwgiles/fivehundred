@@ -19,34 +19,47 @@
     You should have received a copy of the GNU General Public License
     along with Five Hundred.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <vector>
-#include <QObject>
-#include <QGraphicsScene>
-#include <QLabel>
-#include <QMutex>
-#include <QWaitCondition>
-
 #include "player.hpp"
 #include "trick.hpp"
 #include "bidding.hpp"
 
+#include <QGraphicsScene>
+#include <QLabel>
+#include <QMutex>
+#include <QWaitCondition>
+#include <QObject>
+#include <vector>
+
+// Forward Declarations
 class Player;
 
+/*!
+  \class Contract
+  \brief The interesting part of the game
+
+  This class controls the core behaviour of the entire game. It controls
+  the bidding process, swapping the kitty and managing tricks
+*/
 class Contract : public QObject {
     Q_OBJECT
 public:
     Contract(Player* first_player);
     ~Contract();
 
-    enum ExitState { SUCCESS, NOBIDS, REDEAL, ABORT };
-    ExitState start();
+    enum ExitState { SUCCESS, NOBIDS, REDEAL, ABORT }; //!< Return values for any given run of a contract
+    ExitState start(); //!< Starts running the contract
 
+    //! Return the Player, Bid pair which won the bid process
     const Bidding::Pair& bidWinner() const { return m_bids.winner(); }
+
+    //! Whether or not the winning bidder achieved his bid
     bool successful() const;
+
+    //! Return the number of tricks won by the given player
     int tricksWon(const Player* player) const;
 
-    std::vector<Card*> m_kitty;
     void abort();
+    std::vector<Card*> m_kitty;
 
 signals:
     void sceneUpdated();
@@ -58,7 +71,7 @@ signals:
     void animateCollectCards(std::vector<Card*>, Seat);
 
 protected slots:
-    void wake();
+    void wake(); //!< Asynchronous wake from from mutex
 
 protected:
     bool m_abort;

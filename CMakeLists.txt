@@ -21,11 +21,11 @@ include_directories(${QT_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_S
 # Define the executable
 set(CMAKE_CXX_FLAGS "-g --std=c++0x -Wall -Wextra -Werror")
 list(APPEND FIVEHUNDRED_SOURCES
-	${UI_OUTPUT} ${MOCS} bid.cpp biddialog.cpp bidding.cpp card.cpp
-	computer.cpp contract.cpp deck.cpp game.cpp human.cpp log.cpp
-	main.cpp mainwindow.cpp newgamedialog.cpp os.cpp player.cpp
-	scorechart.cpp setupplayer.cpp suit.cpp trick.cpp)
-add_executable(fivehundred ${FIVEHUNDRED_SOURCES})
+    ${UI_OUTPUT} ${MOCS} bid.cpp biddialog.cpp bidding.cpp card.cpp
+    computer.cpp contract.cpp deck.cpp game.cpp human.cpp log.cpp
+    mainwindow.cpp newgamedialog.cpp os.cpp player.cpp scorechart.cpp
+    setupplayer.cpp suit.cpp trick.cpp version.h)
+add_executable(fivehundred main.cpp ${FIVEHUNDRED_SOURCES})
 
 # Package Version
 find_package(Subversion REQUIRED)
@@ -41,8 +41,8 @@ add_dependencies(fivehundred version.h)
 # Doxygen documentation
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
-	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-	add_custom_target(doc ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} COMMENT "Generating API documentation with Doxygen" VERBATIM)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+    add_custom_target(doc ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} COMMENT "Generating API documentation with Doxygen" VERBATIM)
 endif(DOXYGEN_FOUND)
 
 # Installing and packaging
@@ -62,5 +62,8 @@ target_link_libraries(
 )
 
 # Add tests
-enable_testing()
-add_subdirectory(test)
+find_package(GTest)
+if(${GTEST_FOUND} STREQUAL "TRUE")
+    add_library(500 ${FIVEHUNDRED_SOURCES})
+    add_subdirectory(test)
+endif()

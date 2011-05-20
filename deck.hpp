@@ -19,9 +19,16 @@
     You should have received a copy of the GNU General Public License
     along with Five Hundred.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <vector>
 #include "card.hpp"
+#include <vector>
 
+/*!
+  \class Deck
+  \brief Contains all the Card objects
+
+  This is the permanent owner of all Card objects, clients just operate on
+  pointers to the elements contained herein.
+*/
 class Deck : public std::vector<Card*> {
 public:
     Deck();
@@ -32,7 +39,10 @@ public:
     //! Shuffle all cards and deal them out
     void deal(Cards& playerOne, Cards& playerTwo, Cards& playerThree, Cards& playerFour, Cards& kitty);
 
+    //! Trigger all the cards to reposition themselves
     void reposition(QSize screen);
+
+    //! Trigger all the cards to hide themselves
     void hide();
 
 private:

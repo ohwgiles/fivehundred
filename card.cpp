@@ -52,7 +52,6 @@ Card::Card(Suit suit, Value val):
         fatal(error<<"Invalid parameters to Card ctor");
     setPixmap(QPixmap(QString(os::GFX_PATH) + "back.gif"));
     setOffset(-1*pixmap().width()/2, -1*pixmap().height()/2);
-    info << pixmap().width() << "x" << pixmap().height();
     //setOffset(-1*WIDTH/2, -1*HEIGHT/2);
     m_new_display = m_old_display = {
         HIDDEN,

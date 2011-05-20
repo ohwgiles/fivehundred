@@ -1,5 +1,5 @@
 [Desktop Entry]
-Version=${CPACK_PACKAGE_VERSION}
+Version=${VERSION}
 Type=Application
 Name=Five Hundred
 Comment=A trick-taking card game

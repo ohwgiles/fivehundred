@@ -21,8 +21,13 @@
 */
 #include "suit.hpp"
 
+/*!
+  \class Bid
+  \brief Bid object
+*/
 class Bid {
 public:
+    //! Every Lua-accessible object must have a string identifier
     static const char className[];
 
     enum Type { PASS, NORMAL, CLOSED_MISERE, OPEN_MISERE };
@@ -30,23 +35,21 @@ public:
     Bid(Type bid = PASS);
     Bid(Suit suit, int numTricks);
 
-    bool operator <(const Bid& other) const;
-    bool operator ==(const Bid& other) const;
+    bool operator<(const Bid& other) const;
+    bool operator==(const Bid& other) const;
 
     friend std::ostream& operator<<(std::ostream& s, const Bid& bid);
     friend std::istream& operator>>(std::istream& s, Bid& bid);
 
     Type type() const { return m_type; }
-    const Suit& suit() const { return m_suit; }
-    int tricks() const { return m_type == NORMAL ? m_tricks : 0; }
+    const Suit& suit() const;
+    int tricks() const;
     int worth() const;
 
-private:
-
+protected:
     Type m_type;
-    Suit m_suit;
-    int m_tricks;
-
+    Suit m_suit; //!< If m_type is NORMAL, the suit bid
+    int m_tricks; //!< If m_type is NORMAL, the number of tricks bid
 };
 
 #endif // BID_HPP

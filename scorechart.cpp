@@ -31,32 +31,22 @@ ScoreChart::ScoreChart(Game* g, QWidget *parent) :
 {
     ui->setupUi(this);
     ui->tableWidget->setRowCount(g->m_contracts.size());
-    info;
     QStringList l;
     l << (g->m_players[0]->name + "/" + g->m_players[2]->name);
     l << (g->m_players[1]->name + "/" + g->m_players[3]->name);
     ui->tableWidget->setHorizontalHeaderLabels(l);
     int score_sum[2] = {0,0};
-    info;
     for(unsigned i=0; i<g->m_contracts.size(); ++i) {
-        info << g->m_contracts.size();
-        info << i;
         Contract* c = g->m_contracts.at(i);
-        info;
         score_sum[0] += g->m_scores.at(i).first;
         score_sum[1] += g->m_scores.at(i).second;
-
         std::stringstream ss;
-        info;
         ss << c->bidWinner().bid << " by " << c->bidWinner().player->name;
-        info;
         ui->tableWidget->setItem(i, 0, new QTableWidgetItem(QString::number(score_sum[0])));
         ui->tableWidget->setItem(i, 1, new QTableWidgetItem(QString::number(score_sum[1])));
-        info;
         ui->tableWidget->item(i,0)->setToolTip(ss.str().c_str());
         ui->tableWidget->item(i,1)->setToolTip(ss.str().c_str());
     }
-    info;
     ui->tableWidget->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
     show();
 }

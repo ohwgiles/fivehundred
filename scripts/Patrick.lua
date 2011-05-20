@@ -86,7 +86,8 @@ end
 
 function Player:bidWon(bids, winner)
 	for _,p in ipairs(bids) do
-		if p.player == winner then
+                if p.player == winner and not(p.bid == Bid("Pass")) then
+                        print("Setting trumps to "..p.bid:suit())
 			self.trumps = p.bid:suit()
 		end
 	end
@@ -100,7 +101,8 @@ end
 function Player:lowestCard(suit)
 	local lowest_card = nil
 	for _, c in ipairs(self.hand) do
-		if (suit == nil or suit == c:suit()) and (lowest_card == nil or c < lowest_card) then 
+                if (suit == nil or suit == c:suit()) and (lowest_card == nil or c < lowest_card) then
+                        print("My lowest card is: "..tostring(c))
 			lowest_card = c
 		end
 	end
@@ -111,6 +113,7 @@ function Player:highestCard(suit)
 	local highest_card = nil
 	for _, c in ipairs(self.hand) do
 		if (suit == nil or suit == c:suit()) and (highest_card == nil or highest_card < c) then
+                        print("My highest card is: "..tostring(c))
 			highest_card = c
 		end
 	end
@@ -118,23 +121,24 @@ function Player:highestCard(suit)
 end
 
 function Player:haveSuit(suit)
-print("looking for "..suit)
+        print("Checking my hand for "..suit)
 	for _, c in ipairs(self.hand) do
-		print(c)
 		if c:suit() == suit then
+                        print("Found "..tostring(c))
 			return true
 		end
 	end
+        print("I have no "..suit)
 	return false
 end
 
 function Player:yourTurnToPlay(trick)
-print(#trick)
+    print("Cards in trick: "..#trick)
     if #trick == 0 then
         -- I'm the first player, play anything
         return self.hand[math.random(#self.hand)]
     elseif #trick >= 2 then
-    print("partner played")
+                print("My partner has already played")
 		-- partner has already played
 		partners_card = trick[#trick-1].card
 		partner_winning = true
@@ -150,14 +154,14 @@ print(#trick)
 		end
 		print(lead_suit)
 		if partner_winning then
-			print("trying lowest card")
+                        print("Playing lowest card")
 			return self:lowestCard(lead_suit)
 		else
-			print("tryping higehst")
+                        print("Playing highest card")
 			return self:highestCard(lead_suit)
 		end
 	else
-	print("partner hasn't")
+                print("My partner hasn't played yet")
 		-- partner hasn't played
 		lead_suit = trick[1].card:suit()
         if self:haveSuit(lead_suit) then

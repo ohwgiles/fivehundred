@@ -27,6 +27,20 @@ void Bidding::bid(Player* player, Bid bid) {
     trace;
     if(bid == Bid::PASS)
         m_has_passed[player] = true;
+    // If it was the maximum bid, everyone else automatically passes
+    else if(bid == Bid(Suit::NONE, 10)) {
+        m_has_passed[player->next] = true;
+        m_has_passed[player->next->next] = true;
+        m_has_passed[player->next->next->next] = true;
+    } else {
+        std::vector<Pair>::iterator it = std::find_if(m_bids.begin(), m_bids.end(), [=](const Pair& p){ return p.player == player; });
+        if(it != m_bids.end() && (it->bid.type() != bid.type() || (bid.type() == Bid::NORMAL && bid.suit() != it->bid.suit()))) {
+            // everyone's back in the bidding
+            m_has_passed[player->next] = false;
+            m_has_passed[player->next->next] = false;
+            m_has_passed[player->next->next->next] = false;
+        }
+    }
     m_bids.push_back(Pair(player, bid));
 }
 
@@ -47,7 +61,7 @@ bool Bidding::complete() const {
     typedef std::pair<const Player*, bool> PlayerBool;
     debug << "haswinner: " << hasWinner();
     if(hasWinner())
-        return std::count_if(m_has_passed.begin(), m_has_passed.end(), [](const PlayerBool& p){ return p.second; } ) == 3;
+        return std::count_if(m_has_passed.begin(), m_has_passed.end(), [](const PlayerBool& p){ return p.second; } ) == 4;
     else
         return m_bids.size() == 4;
 }
