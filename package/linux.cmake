@@ -3,8 +3,8 @@ install(TARGETS fivehundred RUNTIME DESTINATION bin)
 install(DIRECTORY gfx DESTINATION share/fivehundred PATTERN ".svn" EXCLUDE)
 install(DIRECTORY scripts DESTINATION share/fivehundred PATTERN ".svn" EXCLUDE)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/fivehundred.desktop DESTINATION share/applications)
-
-	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+	
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 		set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
 		set(CPACK_SYSTEM_NAME "amd64")
 	else()
