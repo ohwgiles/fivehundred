@@ -9,6 +9,7 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
 
 # Grab required libraries
 find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
+link_directories(${QT_LIBRARY_DIR})
 find_package(Lua51 REQUIRED)
 
 # Generate C++ from Qt objects
@@ -47,6 +48,7 @@ endif(DOXYGEN_FOUND)
 
 # Installing and packaging
 if(WIN32 AND NOT UNIX)
+	set(WIN_LIBS "QtCore;QtGui;imm32;wsock32")
 	include("package/win32.cmake")
 else()
 	include("package/linux.cmake")
@@ -58,6 +60,7 @@ target_link_libraries(
 	fivehundred
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
+	${WIN_LIBS}
 	${LUA_LIBRARIES}
 )
 
