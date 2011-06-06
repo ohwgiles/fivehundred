@@ -20,7 +20,7 @@
 */
 #include <cstdlib>
 
-#if defined(__linux)
+#if defined(__linux) 
     #include <sys/stat.h>
     #include <unistd.h>
     #include "log.hpp"
@@ -30,8 +30,10 @@
     #include <iostream>
     static CONSOLE_SCREEN_BUFFER_INFO csbi;
     static HANDLE hstdout;
-#elif defined(MACOSX)
-    #error "Todo"
+#elif defined(__APPLE__)
+    #include <unistd.h>
+    #include <mach-o/dyld.h>
+    #include "log.hpp"
 #else
     #error "Unsupported platform"
 #endif
@@ -71,13 +73,18 @@ os::os()
     hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
     // Save the current console attributes
     GetConsoleScreenBufferInfo(hstdout, &csbi);
-#elif defined(MACOSX)
-    #error "Todo"
+#elif defined(__APPLE__)
+    char pathBuffer[1024];
+    unsigned size = sizeof(pathBuffer);
+    _NSGetExecutablePath(pathBuffer, &size);
+    *strrchr(pathBuffer, '/') = 0;
+    GFX_PATH = QString::fromLocal8Bit(pathBuffer) + "/../Resources/gfx/";
+    AI_PATH = QString::fromLocal8Bit(pathBuffer) + "/../Resources/scripts/";
 #endif
 
 }
 
-#if defined(__linux)
+#if defined(__linux) || defined(__APPLE__)
 void os::setStdoutColor(const char* colorcode) {
     // Only set the colours if stdout is a tty
     if(isatty(STDOUT_FILENO))

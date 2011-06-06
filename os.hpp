@@ -21,7 +21,7 @@
 */
 
 // Color codes for printing log messages to a tty
-#if defined(__linux)
+#if defined(__linux) || defined(__APPLE__)
 #define PURPLE  "\033[0;35m"
 #define TEAL    "\033[0;36m"
 #define YELLOW  "\033[1;33m"
@@ -57,7 +57,7 @@ struct os {
     static QString GFX_PATH; //!< Filesystem path to graphics
 
     static const char* getUserName(); //!< Return the current user name (to use for player name)
-#if defined(__linux)
+#if defined(__linux) || defined(__APPLE__)
     static void setStdoutColor(const char* colorcode); //!< Linux definition, will not be implemented otherwise
 #elif defined(__WIN32)
     static void setStdoutColor(unsigned colorcode); //!< Win32 definition, will not be implemented otherwise

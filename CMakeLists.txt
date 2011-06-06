@@ -26,7 +26,9 @@ list(APPEND FIVEHUNDRED_SOURCES
     computer.cpp contract.cpp deck.cpp game.cpp human.cpp log.cpp
     mainwindow.cpp newgamedialog.cpp os.cpp player.cpp scorechart.cpp
     setupplayer.cpp suit.cpp trick.cpp version.h)
-add_executable(fivehundred main.cpp ${FIVEHUNDRED_SOURCES})
+
+file(GLOB GFX_FILES gfx/*.gif gfx/*.png)
+file(GLOB AI_FILES scripts/*.lua)
 
 # Package Version
 find_package(Subversion REQUIRED)
@@ -37,7 +39,20 @@ set(CPACK_PACKAGE_VERSION_PATCH "0alpha~r${SVN_WC_REVISION}")
 set(VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH})
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/version.h.txt" "#define VERSION \"${VERSION}\"")
 add_custom_command(OUTPUT version.h COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/version.h.txt version.h)
-add_dependencies(fivehundred version.h)
+
+add_executable(fivehundred MACOSX_BUNDLE main.cpp version.h ${FIVEHUNDRED_SOURCES} ${GFX_FILES} ${AI_FILES})
+
+# Installing and packaging
+if(WIN32)
+	set(EXTRA_LIBS "QtCore;QtGui;imm32;wsock32")
+	include("package/win32.cmake")
+elseif(APPLE)
+	set(EXTRA_LIBS "z")
+	set_target_properties(fivehundred PROPERTIES MACOSX_BUNDLE TRUE LINK_FLAGS "-framework CoreFoundation -framework Cocoa -framework Carbon")
+	include("package/osx.cmake")
+elseif(LINUX)
+	include("package/linux.cmake")
+endif()
 
 # Doxygen documentation
 find_package(Doxygen)
@@ -46,13 +61,6 @@ if(DOXYGEN_FOUND)
     add_custom_target(doc ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} COMMENT "Generating API documentation with Doxygen" VERBATIM)
 endif(DOXYGEN_FOUND)
 
-# Installing and packaging
-if(WIN32 AND NOT UNIX)
-	set(WIN_LIBS "QtCore;QtGui;imm32;wsock32")
-	include("package/win32.cmake")
-else()
-	include("package/linux.cmake")
-endif()
 include(CPack)
 
 
@@ -60,7 +68,7 @@ target_link_libraries(
 	fivehundred
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
-	${WIN_LIBS}
+	${EXTRA_LIBS}
 	${LUA_LIBRARIES}
 )
 
