@@ -22,21 +22,21 @@
 
 // Color codes for printing log messages to a tty
 #if defined(__linux) || defined(__APPLE__)
-#define PURPLE  "\033[0;35m"
-#define TEAL    "\033[0;36m"
-#define YELLOW  "\033[1;33m"
-#define GREEN   "\033[0;32m"
-#define RED     "\033[1;31m"
-#define WHITE   "\033[1;37m"
-#define NORMAL  "\033[m"
+#define COLOUR_PURPLE  "\033[0;35m"
+#define COLOUR_TEAL    "\033[0;36m"
+#define COLOUR_YELLOW  "\033[1;33m"
+#define COLOUR_GREEN   "\033[0;32m"
+#define COLOUR_RED     "\033[1;31m"
+#define COLOUR_WHITE   "\033[1;37m"
+#define COLOUR_NORMAL  "\033[m"
 #elif defined(_WIN32)
-#define PURPLE  (0x1 | 0x4)
-#define TEAL    (0x1 | 0x2)
-#define YELLOW  (0x2 | 0x4 | 0x8)
-#define GREEN   (0x2)
-#define RED     (0x4 | 0x8)
-#define WHITE   (0x1 | 0x4 | 0x2 | 0x8)
-#define NORMAL  0
+#define COLOUR_PURPLE  (0x1 | 0x4)
+#define COLOUR_TEAL    (0x1 | 0x2)
+#define COLOUR_YELLOW  (0x2 | 0x4 | 0x8)
+#define COLOUR_GREEN   (0x2)
+#define COLOUR_RED     (0x4 | 0x8)
+#define COLOUR_WHITE   (0x1 | 0x4 | 0x2 | 0x8)
+#define COLOUR_NORMAL  0
 #endif
 
 #include <QString>

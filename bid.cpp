@@ -18,7 +18,7 @@
     You should have received a copy of the GNU General Public License
     along with Five Hundred.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "player.hpp"
+#include "bid.hpp"
 #include <iostream>
 #include "log.hpp"
 
@@ -41,6 +41,16 @@ Bid::Bid(Suit suit, int numTricks) :
     trace;
     if(!(numTricks >= 5 && numTricks <= 10))
         fatal(error<<"Invalid number of tricks: "<<numTricks);
+}
+
+int Bid::suitToInt(Suit s) {
+    trace;
+    if(s == Suit::SPADES) return 0;
+    if(s == Suit::CLUBS) return 1;
+    if(s == Suit::DIAMONDS) return 2;
+    if(s == Suit::HEARTS) return 3;
+    if(s == Suit::NONE) return 4;
+    fatal(error<<"Nonexistant suit type");
 }
 
 const Suit& Bid::suit() const {
@@ -114,14 +124,7 @@ int Bid::worth() const {
         x = 430;
         break;
     case NORMAL:
-        switch(m_suit) {
-        case Suit::SPADES: x = 40; break;
-        case Suit::CLUBS: x = 60; break;
-        case Suit::DIAMONDS: x = 80; break;
-        case Suit::HEARTS: x = 100; break;
-        case Suit::NONE: x = 120; break;
-        }
-        x += 100*(m_tricks-6);
+        x = 20*(suitToInt(m_suit)+2) + 100*(m_tricks-6);
         break;
     }
     debug << *this << " is worth " << x;

@@ -60,12 +60,16 @@ void Human::sortHand(Suit trumps) {
         if(lhs->suit(trumps) == rhs->suit(trumps))
             return lhs->value(trumps) < rhs->value(trumps);
 
-        else switch(lhs->suit(trumps)) {
-        case Suit::SPADES: return true;
-        case Suit::DIAMONDS: return rhs->suit(trumps) != Suit::SPADES;
-        case Suit::CLUBS: return rhs->suit(trumps) == Suit::HEARTS || rhs->suit(trumps) == Suit::NONE;
-        case Suit::HEARTS: return rhs->suit(trumps) == Suit::NONE;
-        default: return false;
+        else {
+            if(lhs->suit(trumps) == Suit::SPADES)
+                return true;
+            else if(lhs->suit(trumps) == Suit::DIAMONDS)
+                return rhs->suit(trumps) != Suit::SPADES;
+            else if(lhs->suit(trumps) ==  Suit::CLUBS)
+                return rhs->suit(trumps) == Suit::HEARTS || rhs->suit(trumps) == Suit::NONE;
+            else if(lhs->suit(trumps) ==  Suit::HEARTS)
+                return rhs->suit(trumps) == Suit::NONE;
+            else return false;
         }
     };
     std::sort(hand.begin(), hand.end(), sorter);
@@ -79,7 +83,8 @@ Hand Human::yourTurnToSelectKitty(const Hand& kitty) {
     for(Hand::const_iterator c = kitty.begin(); c != kitty.end(); ++c) {
         hand.push_back(*c);
         (*c)->raise();
-        (*c)->setFaceUp(true);
+        //(*c)->setFaceUp(true);
+        emit turnUpCard(*c, true);
     }
     for(Card* c: hand)
         connect(c, SIGNAL(cardClicked(Card&)), this, SLOT(cardSwapped(Card&)));
@@ -122,8 +127,15 @@ void Human::bidWon(const Bidding* bidlist, const Player*) {
 
 void Human::cardSwapped(Card& c) {
     trace;
+    unsigned i;
+    for(i=0;i<hand.size(); ++i)
+        if(hand[i] == &c) break;
+    if(i == hand.size())
+        fatal(error<<"Could not find clicked card in hand");
+    Card* card = const_cast<Card*>(hand[i]);
     c.raise(!c.raised());
-    emit updateScene();
+    emit placeCard(card, pos(), i, hand.size());
+    //emit updateScene();
     // Count the number of raised cards
     unsigned numRaised = std::count_if(hand.begin(), hand.end(), [](Card*c){return c->raised();});
     emit requestKittyButtonEnabled(numRaised == 3);
@@ -140,7 +152,8 @@ void Human::bidMade(Human* player, Bid bid) {
 void Human::handDealt() {
     sortHand(Suit::NONE);
     for(Card*c: hand)
-        c->setFaceUp();
+        //c->setFaceUp();
+        emit turnUpCard(c, true);
     layoutHand();
 }
 

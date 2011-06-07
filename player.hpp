@@ -68,9 +68,13 @@ public:
     const QString name;
     Player* next; //!< Visitor-pattern linked list behaviour
 
+    void reposition(); //!< GUI-only, player repositions his cards
+
 signals:
     void kittyChosen(const Hand&);
     void acknowledgeTrick(Player* self);
+    void placeCard(Card* card, Seat seat, unsigned indexInHand, unsigned handSize);
+    void turnUpCard(Card* card, bool faceUp);
 
 protected:
     //! Contains logic to determine whether the player is allowed to play, e.g. short suited

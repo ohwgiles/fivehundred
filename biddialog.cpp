@@ -24,6 +24,7 @@
 #include <QVariant>
 #include <QMoveEvent>
 #include <sstream>
+#include "bidgrid.hpp"
 #include "log.hpp"
 
 BidDialog::BidDialog(QWidget *parent) :
@@ -33,12 +34,15 @@ BidDialog::BidDialog(QWidget *parent) :
     trace;
     ui->setupUi(this);
 
-    ui->tableWidget->setColumnCount(2);
-    ui->tableWidget->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-    ui->tableWidget->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+//    ui->tableWidget->setColumnCount(2);
+//    ui->tableWidget->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+//    ui->tableWidget->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+
+    ui->pushButton->setEnabled(false);
 
     connect(this, SIGNAL(accepted()), this, SLOT(dialog_accepted()));
     connect(this, SIGNAL(rejected()), this, SLOT(dialog_rejected()));
+    connect(ui->bidgrid, SIGNAL(bidSelected()), this, SLOT(bidSelected()));
 }
 
 BidDialog::~BidDialog()
@@ -52,7 +56,7 @@ void BidDialog::show(Human* player, Bidding* bids) {
     m_player = player;
 
     Bid winner(bids->maxBid());
-
+/*
     ui->r6s->setEnabled(winner < Bid(Suit::SPADES, 6));
     ui->r7s->setEnabled(winner < Bid(Suit::SPADES, 7));
     ui->r8s->setEnabled(winner < Bid(Suit::SPADES, 8));
@@ -85,16 +89,18 @@ void BidDialog::show(Human* player, Bidding* bids) {
 
     ui->rcm->setEnabled(winner < Bid(Bid::CLOSED_MISERE));
     ui->rom->setEnabled(winner < Bid(Bid::OPEN_MISERE));
+*/
+    ui->bidgrid->setWinningBid(winner);
 
-    ui->tableWidget->clear();
-    ui->tableWidget->setRowCount(bids->count());
-    for(unsigned i=0; i<bids->count(); ++i) {
-        ui->tableWidget->setItem(i, 0, new QTableWidgetItem(bids->at(i).player->name));
-        std::stringstream ss;
-        ss << bids->at(i).bid;
-        ui->tableWidget->setItem(i, 1, new QTableWidgetItem(ss.str().c_str()));
-    }
-    ui->tableWidget->reset();
+//    ui->tableWidget->clear();
+//    ui->tableWidget->setRowCount(bids->count());
+//    for(unsigned i=0; i<bids->count(); ++i) {
+//        ui->tableWidget->setItem(i, 0, new QTableWidgetItem(bids->at(i).player->name));
+//        std::stringstream ss;
+//        ss << bids->at(i).bid;
+//        ui->tableWidget->setItem(i, 1, new QTableWidgetItem(ss.str().c_str()));
+//    }
+//    ui->tableWidget->reset();
 
     this->move(m_pos);
     QDialog::show();
@@ -117,8 +123,12 @@ void BidDialog::moveEvent(QMoveEvent* event) {
     m_pos = event->pos();
 }
 
+void BidDialog::bidSelected() {
+    ui->pushButton->setEnabled(true);
+}
+
 void BidDialog::dialog_accepted() {
-    Bid bid(Bid::PASS);
+/*    Bid bid(Bid::PASS);
 
     if(ui->r6s->isChecked()) bid = Bid(Suit::SPADES, 6);
     if(ui->r7s->isChecked()) bid = Bid(Suit::SPADES, 7);
@@ -152,7 +162,8 @@ void BidDialog::dialog_accepted() {
 
     if(ui->rcm->isChecked()) bid = Bid(Bid::CLOSED_MISERE);
     if(ui->rom->isChecked()) bid = Bid(Bid::OPEN_MISERE);
-
+*/
+    Bid bid = ui->bidgrid->selectedBid();
     emit(bidMade(m_player, bid));
 }
 

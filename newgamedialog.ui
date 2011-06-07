@@ -42,7 +42,7 @@
   <customwidget>
    <class>SetupPlayer</class>
    <extends>QWidget</extends>
-   <header>setupplayer.h</header>
+   <header>setupplayer.hpp</header>
   </customwidget>
  </customwidgets>
  <resources/>

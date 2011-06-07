@@ -35,7 +35,7 @@ class Card;
 
          The trick object can then determine a winner for any given trump suit
 */
-class Trick  {
+class Trick {
 public:
     Trick();
 
@@ -74,7 +74,6 @@ public:
     };
 
 protected:
-
     int m_num_cards;
     std::vector<Item> m_plays;
 };

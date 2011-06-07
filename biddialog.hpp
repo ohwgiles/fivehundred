@@ -41,6 +41,7 @@ public:
     explicit BidDialog(QWidget *parent = 0);
     ~BidDialog();
 
+protected slots:
     void show(Human* player, Bidding* bids);
 
 protected:
@@ -53,6 +54,7 @@ signals:
     void bidMade(Human* player, Bid);
 
 private slots:
+    void bidSelected();
     void on_pushButton_2_clicked();
     void on_pushButton_clicked();
     void dialog_accepted();

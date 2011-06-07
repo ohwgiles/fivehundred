@@ -63,10 +63,20 @@ bool Player::cardValid(const Trick* trick, Suit trumps, Card& card) {
 
 void Player::layoutHand() {
     trace;
-    for(unsigned i=0; i< hand.size(); ++i)
-        hand[i]->setHandOffset(i, hand.size());
+    // todo: remove
+    reposition();
+//    for(unsigned i=0; i< hand.size(); ++i)
+//        hand[i]->setHandOffset(i, hand.size());
 }
 
+void Player::reposition() {
+    trace;
+    unsigned sz = hand.size();
+    for(unsigned i=0; i<sz; ++i) {
+        Card* c = const_cast<Card*>(hand[i]);
+        emit placeCard(c, pos(), i, sz);
+    }
+}
 
 std::istream& operator>>(std::istream& s, Player& ) {
     trace;

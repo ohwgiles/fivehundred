@@ -47,20 +47,15 @@
 MainWindow::MainWindow(bool open_hand, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    m_game(0),
-    m_scene(new QGraphicsScene(this)),
-    m_deck(new Deck()),
-    m_biddialog(new BidDialog(this)),
     m_kittybutton(new QPushButton("Discard Kitty", 0)),
-    m_kittybuttonproxy(0),
+    m_biddialog(new BidDialog(this)),
+    m_game(0),
+    m_table(m_kittybutton),
     m_open_hand(open_hand)
 {
     ui->setupUi(this);
 
-    ui->graphicsView->setScene(m_scene);
-
-    for(Card* c: *m_deck)
-        m_scene->addItem(c);
+    ui->graphicsView->setScene(&m_table);
 
     // It would be nice to use direct rendering some time maybe?
     // QGLWidget* gl = new QGLWidget(QGLFormat(QGL::DirectRendering));
@@ -68,7 +63,6 @@ MainWindow::MainWindow(bool open_hand, QWidget *parent) :
     ui->graphicsView->setStyleSheet(QString("background-image: url('") + os::GFX_PATH + "table.gif');");
 
     // Add all extra widgets to scene
-    m_kittybuttonproxy = m_scene->addWidget(m_kittybutton);
     ui->statusBar->addWidget(&m_lbl_status, 1);
     ui->statusBar->addWidget(&m_lbl_team_ns);
     ui->statusBar->addWidget(&m_lbl_tricks_ns);
@@ -79,142 +73,30 @@ MainWindow::MainWindow(bool open_hand, QWidget *parent) :
     m_lbl_bid.setAlignment(Qt::AlignRight);
     ui->statusBar->addWidget(&m_lbl_bid, 1);
 
-    QFont font;
-    font.setPointSize(10);
-    font.setStyleHint(QFont::SansSerif);
-
-    // Add player names to scene
-    for(QGraphicsTextItem& n: m_player_names) {
-        n.setFont(font);
-        n.setDefaultTextColor(QColor(Qt::white));
-        m_scene->addItem(&n);
-    }
-
     resetUI();
-
     show();
+
     // Still not quite sure why we have to do this
-    this->resize(m_scene->sceneRect().size().toSize());
+    resize(m_table.sceneRect().size().toSize());
 }
 
 MainWindow::~MainWindow() {
     trace;
     delete m_biddialog;
-    delete m_deck;
     delete m_kittybutton;
     delete ui;
-}
-
-void MainWindow::updateDisplay() {
-    trace;
-    QSize size(ui->graphicsView->size());
-    m_deck->reposition(size);
-    repositionPlayerNames();
-}
-
-void MainWindow::showBidDialog(Human* player, Bidding* bids) {
-    trace;
-    m_biddialog->show(player, bids);
-}
-
-void MainWindow::showKittyButton(bool show) {
-    trace;
-    m_kittybutton->setVisible(show);
-    //m_scene->update();
-}
-
-void MainWindow::enableKittyButton(bool en) {
-    trace;
-    m_kittybutton->setEnabled(en);
-}
-
-void MainWindow::animatePlayCard(Card* card) {
-    trace;
-    QPointF final = card->expectedPosition(ui->graphicsView->size(), Card::TRICK);
-    QPropertyAnimation* anim = new QPropertyAnimation(card, "position");
-    connect(anim, SIGNAL(finished()), this, SLOT(animationComplete_()));
-    anim->setDuration(600);
-    anim->setEasingCurve(QEasingCurve::OutCirc);
-    anim->setKeyValueAt(0, card->pos());
-    anim->setKeyValueAt(1, final);
-    anim->start(QAbstractAnimation::DeleteWhenStopped);
-}
-
-void MainWindow::animateCollectCards(std::vector<Card*> cards, Seat anc) {
-    trace;
-    QParallelAnimationGroup* anim_group = new QParallelAnimationGroup();
-    for(Card* c : cards) {
-        QPropertyAnimation* pos = new QPropertyAnimation(c, "position");
-        pos->setDuration(1000);
-        pos->setKeyValueAt(0, c->pos());
-        pos->setKeyValueAt(0.5, c->pos());
-        QPointF final;
-        switch(anc) {
-        case SOUTH:
-            final = QPointF(ui->graphicsView->width()/2, ui->graphicsView->height());
-            break;
-        case WEST:
-            final = QPointF(0, ui->graphicsView->height()/2);
-            break;
-        case EAST:
-            final = QPointF(ui->graphicsView->width(), ui->graphicsView->height()/2);
-            break;
-        case NORTH:
-            final = QPointF(ui->graphicsView->width()/2, 0);
-            break;
-        default:
-            fatal(error<<"Invalid anchor point");
-        }
-
-        pos->setKeyValueAt(1, final);
-        anim_group->addAnimation(pos);
-
-        QPropertyAnimation* opacity = new QPropertyAnimation(c, "opacity");
-        opacity->setDuration(1000);
-        opacity->setKeyValueAt(0, 1);
-        opacity->setKeyValueAt(0.5, 1);
-        opacity->setKeyValueAt(0.8, 0);
-        opacity->setKeyValueAt(1, 0);
-        anim_group->addAnimation(opacity);
-    }
-    connect(anim_group, SIGNAL(finished()), this, SLOT(animationComplete_()));
-    anim_group->start(QAbstractAnimation::DeleteWhenStopped);
-}
-
-void MainWindow::animationComplete_() {
-    trace;
-    emit animationComplete();
-}
-
-void MainWindow::repositionPlayerNames() {
-    QSize size(ui->graphicsView->size());
-    m_player_names[int(SOUTH)].setPos(
-                size.width()/2 +
-                4.5*Card::H_OFFSET + Card::WIDTH/2 - m_player_names[int(SOUTH)].boundingRect().width(),
-                size.height() - Card::EDGE_OFFSET + Card::HEIGHT/2);
-    m_player_names[int(NORTH)].setPos(
-                size.width()/2 -
-                4.5*Card::H_OFFSET - Card::WIDTH/2,
-                Card::EDGE_OFFSET - Card::HEIGHT/2 - m_player_names[int(NORTH)].boundingRect().height());
-    m_player_names[int(WEST)].setPos(
-                Card::EDGE_OFFSET - Card::HEIGHT/2,
-                size.height()/2 + 4.5*Card::H_OFFSET + Card::WIDTH/2);
-    m_player_names[int(EAST)].setPos(
-                size.width() -
-                Card::EDGE_OFFSET + Card::HEIGHT/2 - m_player_names[int(EAST)].boundingRect().width(),
-                size.height()/2 - 4.5*Card::H_OFFSET - Card::WIDTH/2 -
-                m_player_names[int(SOUTH)].boundingRect().height());
-
 }
 
 void MainWindow::resizeEvent(QResizeEvent* event) {
     QMainWindow::resizeEvent(event);
     QSize size(ui->graphicsView->size());
-    m_scene->setSceneRect(0, 0, size.width(), size.height());
-    m_kittybuttonproxy->setPos(size.width()/2 - m_kittybuttonproxy->rect().width()/2, size.height()/2 - m_kittybuttonproxy->rect().height()/2);
-    m_deck->reposition(size);
-    repositionPlayerNames();
+    m_table.reposition(size);
+    //m_deck->reposition(size);
+    if(m_game) {
+        m_game->reposition();
+    }
 }
+
 
 
 void MainWindow::on_actionNew_Game_triggered()
@@ -235,26 +117,31 @@ void MainWindow::newGame() {
 
     NewGameDialog d;
     if(d.exec() == QDialog::Accepted) {
-        m_game = new Game(m_deck);
+        m_game = new Game(m_table.deck());
 
         SetupPlayer** cfg = d.result();
         for(unsigned i=0; i<4; ++i) {
+            Player* p;
             if(cfg[Seat(i)]->getPlayerType() == SetupPlayer::HUMAN) {
                 Human* h = new Human(Seat(i), cfg[Seat(i)]->getName());
-                connect(h, SIGNAL(updateScene()), this, SLOT(updateDisplay()));
-                connect(h, SIGNAL(requestBidDialog(Human*,Bidding*)), this, SLOT(showBidDialog(Human*,Bidding*)));
+                //connect(h, SIGNAL(updateScene()), this, SLOT(updateDisplay()), Qt::QueuedConnection);
+                connect(h, SIGNAL(requestBidDialog(Human*,Bidding*)), m_biddialog, SLOT(show(Human*,Bidding*)));
                 connect(m_biddialog, SIGNAL(bidMade(Human*,Bid)), h, SLOT(bidMade(Human*,Bid)));
-                connect(h, SIGNAL(requestKittyButtonEnabled(bool)), this, SLOT(enableKittyButton(bool)));
-                connect(h, SIGNAL(requestKittyButtonVisible(bool)), this, SLOT(showKittyButton(bool)));
+                connect(h, SIGNAL(requestKittyButtonEnabled(bool)), m_kittybutton, SLOT(setEnabled(bool)));
+                connect(h, SIGNAL(requestKittyButtonVisible(bool)), m_kittybutton, SLOT(setVisible(bool)));
                 connect(m_kittybutton, SIGNAL(clicked()), h, SLOT(kittyButtonClicked()));
-                m_game->addPlayer(h);
+                p = h;
             } else {
-                m_game->addPlayer(new Computer(Seat(i), cfg[Seat(i)]->getName(), cfg[Seat(i)]->getScript(), m_open_hand));
+                p = new Computer(Seat(i), cfg[Seat(i)]->getName(), cfg[Seat(i)]->getScript(), m_open_hand);
             }
-            m_player_names[i].setPlainText(cfg[Seat(i)]->getName());
+            connect(p, SIGNAL(placeCard(Card*,Seat,uint,uint)), &m_table, SLOT(placeCardInHand(Card*,Seat,uint,uint)), Qt::QueuedConnection);
+            connect(p, SIGNAL(turnUpCard(Card*,bool)), &m_table, SLOT(turnUpCard(Card*,bool)), Qt::QueuedConnection);
+            m_game->addPlayer(p);
+            m_table.setPlayerName(Seat(i), cfg[Seat(i)]->getName());
         }
 
-        connect(m_game, SIGNAL(sceneUpdated()), this, SLOT(updateDisplay()));
+        //connect(m_game, SIGNAL(sceneUpdated()), this, SLOT(updateDisplay()));
+        connect(m_game, SIGNAL(showCard(Card*,bool)), &m_table, SLOT(showCard(Card*,bool)));
         connect(m_game, SIGNAL(newContract(Contract*)), this, SLOT(connectContract(Contract*)), Qt::DirectConnection);
         connect(m_game, SIGNAL(finished()), this, SLOT(threadFinished()));
         connect(m_game, SIGNAL(updateNorthSouthScore(QString)), &m_lbl_score_ns, SLOT(setText(QString)));
@@ -267,13 +154,11 @@ void MainWindow::newGame() {
 
         delete cfg;
         m_game->start();
-        m_next_action = SHOW_SCORES;
     }
 }
 
 void MainWindow::resetUI() {
     trace;
-    m_deck->hide();
     m_lbl_status.setText("");
     m_lbl_team_ew.setText("");
     m_lbl_team_ns.setText("");
@@ -282,22 +167,25 @@ void MainWindow::resetUI() {
     m_lbl_score_ew.setText("0");
     m_lbl_score_ns.setText("0");
     m_lbl_bid.setText("");
-    m_kittybutton->hide();
-    for(QGraphicsTextItem& n: m_player_names)
-        n.setPlainText("");
-    updateDisplay();
+    m_table.clear();
 }
 
 void MainWindow::connectContract(Contract* contract) {
     trace;
-    connect(contract, SIGNAL(sceneUpdated()), this, SLOT(updateDisplay()));
+    //m_deck->show(true);
+    //connect(contract, SIGNAL(sceneUpdated()), this, SLOT(updateDisplay()));
+    connect(contract, SIGNAL(showCard(Card*,bool)), &m_table, SLOT(showCard(Card*,bool)));
+    connect(contract, SIGNAL(placeCard(Card*,Seat,uint)), &m_table, SLOT(placeCardInTrick(Card*,Seat,uint)), Qt::QueuedConnection);
+    connect(contract, SIGNAL(turnUpCard(Card*,bool)), &m_table, SLOT(turnUpCard(Card*,bool)));
     connect(contract, SIGNAL(updateState(QString)), &m_lbl_status, SLOT(setText(QString)));
     connect(contract, SIGNAL(updateEastWestTricks(QString)), &m_lbl_tricks_ew, SLOT(setText(QString)));
     connect(contract, SIGNAL(updateNorthSouthTricks(QString)), &m_lbl_tricks_ns, SLOT(setText(QString)));
     connect(contract, SIGNAL(updateBid(QString)), &m_lbl_bid, SLOT(setText(QString)));
-    connect(contract, SIGNAL(animatePlayCard(Card*)), this, SLOT(animatePlayCard(Card*)), Qt::QueuedConnection);
-    connect(contract, SIGNAL(animateCollectCards(std::vector<Card*>,Seat)), this, SLOT(animateCollectCards(std::vector<Card*>,Seat)), Qt::QueuedConnection);
-    connect(this, SIGNAL(animationComplete()), contract, SLOT(wake()), Qt::DirectConnection);
+    connect(contract, SIGNAL(animateMakeBid(Seat,Bid)), &m_table, SLOT(animateBidBubble(Seat,Bid)));
+    connect(contract, SIGNAL(animateEndBidding()), &m_table, SLOT(hideBubbles()));
+    connect(contract, SIGNAL(animatePlayCard(Seat,Card*,uint)), &m_table, SLOT(animatePlayCard(Seat,Card*,uint)), Qt::QueuedConnection);
+    connect(contract, SIGNAL(animateCollectCards(std::vector<Card*>,Seat)), &m_table, SLOT(animateCollectCards(std::vector<Card*>,Seat)), Qt::QueuedConnection);
+    connect(&m_table, SIGNAL(animationComplete()), contract, SLOT(wake()), Qt::DirectConnection);
 }
 
 void MainWindow::contractInvalid() {
@@ -316,8 +204,6 @@ void MainWindow::showScores() {
 void MainWindow::threadFinished() {
     info << "thread done";
     resetUI();
-    if(m_next_action == SHOW_SCORES) {
-    }
 
     delete m_game;
     m_game = 0;
@@ -338,10 +224,9 @@ void MainWindow::on_actionEnd_Game_triggered()
         QMessageBox m(QMessageBox::Warning, "Game in progress", "Are you sure you wish to abort the current game?", QMessageBox::Yes | QMessageBox::No);
 
         if(m.exec() == QMessageBox::Yes) {
-            m_next_action = NONE;
+            m_game->abort();
             if(!m_biddialog->isHidden())
                 m_biddialog->close();
-            m_game->abort();
         }
     }
 }

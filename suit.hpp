@@ -38,15 +38,14 @@ public:
     bool operator==(const Suit& other) const {
         return m_suitenum == other.m_suitenum;
     }
+    bool operator!=(const Suit& other) const {
+        return !operator==(other);
+    }
     bool operator==(SuitEnum suit) const {
         return m_suitenum == suit;
     }
     bool operator!=(SuitEnum suit) const {
         return !operator==(suit);
-    }
-
-    operator int() const {
-        return int(m_suitenum);
     }
 
     //! Returns the opposite suit (e.g to find bowers)

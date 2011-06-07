@@ -226,7 +226,8 @@ void Computer::bidWon(const Bidding* bidlist, const Player* winner) {
 void Computer::handDealt() {
     debug;
     for(Card* c: hand)
-        c->setFaceUp(m_play_open_hand);
+        //c->setFaceUp(m_play_open_hand);
+        emit turnUpCard(c, m_play_open_hand);
     layoutHand();
     registerHand();
     callLua(L, __func__);
@@ -368,7 +369,8 @@ Hand Computer::yourTurnToSelectKitty(const Hand& kitty) {
             }
             for(Hand::const_iterator it = kitty.begin(); it != kitty.end(); ++it) {
                 if(std::find(discards.begin(), discards.end(), *it) == discards.end()) {
-                    (*it)->setFaceUp(m_play_open_hand);
+                    //(*it)->setFaceUp(m_play_open_hand);
+                    emit turnUpCard(*it, m_play_open_hand);
                     hand.push_back(*it);
                 }
             }

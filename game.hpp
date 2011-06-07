@@ -29,6 +29,7 @@
 class Contract;
 class Player;
 class Deck;
+class Card;
 
 /*!
   \class Game
@@ -54,10 +55,12 @@ public:
     void wake();
     void addPlayer(Player* new_player); //!< Use this function to add four players to the game
     virtual void run();
+    void reposition();
 
 signals:
     // Signals connect to the GUI thread
     void sceneUpdated();
+    void showCard(Card* c, bool en);
     void updateNorthSouthScore(QString);
     void updateEastWestScore(QString);
     void newContract(Contract* current);
@@ -68,9 +71,9 @@ private:
     void updateScores(int northsouth, int eastwest);
     Deck* m_deck;
 
-    Player* m_players[4];
     int m_num_players;
     Player* m_first_player;
+    Player* m_players[4];
 
     std::vector<Contract*> m_contracts;
 

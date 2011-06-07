@@ -29,7 +29,10 @@
 #include <iostream>
 
 struct Arg {
-    Arg(){}
+    Arg() :
+        numArgs(0),
+        supplied(false)
+    {}
     Arg(QString shortName, QString desc, int args=0) :
         shortName(shortName), description(desc), numArgs(args), supplied(false)
     {}
@@ -58,6 +61,7 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
     qRegisterMetaType<Seat>("Seat");
+    qRegisterMetaType<Bid>("Bid");
     qRegisterMetaType<std::vector<Card*>>("std::vector<Card*>");
 
     std::map<QString, Arg> args;

@@ -59,48 +59,28 @@ public:
     bool operator==(const Card& other) const;
     virtual ~Card();
 
-    void reposition(QSize screen);
-
-    void setLocation(Location l) const;
-    void setHandOffset(unsigned i, unsigned sz) const;
-    void setFromSeat(Seat s) const;
-    void setFaceUp(bool setFaceUp=true) const;
-    void raise(bool v=true) const;
+    void setFaceUp(bool setFaceUp=true);
+    void raise(bool v=true);
     bool raised() const;
 
     bool isTrump(Suit trumps) const;
     Suit suit(Suit trump = Suit::NONE) const;
     Value value(Suit trump = Suit::NONE) const;
 
-    QPointF expectedPosition(QSize screen, Location loc) const;
+    static void createBackPixmap();
 
 signals:
     void cardClicked(Card& card);
 
 protected:
-    void mousePressEvent(QGraphicsSceneMouseEvent * event);
+    void mousePressEvent(QGraphicsSceneMouseEvent* event);
+
     Suit m_suit;
     Value m_value;
-
-    /*!
-      \class Display
-      \brief Members controlling the card's appearance
-
-      This is an evil struct that allows the Card to position
-      itself in the scene. Eventually should be refactored so
-      this knowledge is spread over the current owner of the
-      Card, whether it be the Player or the Trick
-    */
-    struct Display {
-        Location location;
-        double relative_offset;
-        Seat from_seat;
-        bool raised;
-        bool faceup;
-    };
-
-    mutable Display m_new_display; //!< Asynchronous behaviour
-    Display m_old_display; //!< Asynchronous behaviour
+    QPixmap m_pixmap;
+    static QPixmap* back_pixmap;
+    bool m_face_up;
+    bool m_raised;
 
     static QString findImage(Suit suit, int value);
 

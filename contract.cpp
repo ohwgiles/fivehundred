@@ -54,12 +54,15 @@ Contract::~Contract() {
 
 Contract::ExitState Contract::start() {
     trace;
+    for(Card* c : m_kitty)
+        emit showCard(c, false);
 
     emit(updateNorthSouthTricks("0"));
     emit(updateEastWestTricks("0"));
+    emit updateBid("");
 
     FOR_ALL_PLAYERS0(handDealt);
-    emit sceneUpdated();
+    //emit sceneUpdated();
     info << "Starting the bidding";
 
     do {
@@ -67,10 +70,19 @@ Contract::ExitState Contract::start() {
         Bid bid = m_current_player->yourTurnToBid(&m_bids);
         if(m_abort) return ABORT;
         info << m_current_player->name << " bid " << bid;
+        if(receivers(SIGNAL(animateMakeBid(Seat,Bid))) > 0) {
+            emit animateMakeBid(m_current_player->pos(), bid);
+            m_wait.wait(&m_mutex);
+        }
         m_bids.bid(m_current_player, bid);
     } while(!m_bids.complete() && (m_current_player = m_bids.nextBidder(m_current_player)));
 
     info << "Ended bidding process";
+
+    if(receivers(SIGNAL(animateEndBidding())) > 0) {
+        emit animateEndBidding();
+        m_wait.wait(&m_mutex);
+    }
 
     if(m_bids.hasWinner()) {
         const Bidding::Pair& p = m_bids.winner();
@@ -82,41 +94,37 @@ Contract::ExitState Contract::start() {
         emit(updateBid(ss.str().c_str()));
         FOR_ALL_PLAYERS2(bidWon, &m_bids, m_current_player);
 
-        for(Card* c : m_kitty) {
-            c->setLocation(Card::HAND);
-            c->setFromSeat(m_current_player->pos());
-        }
-        emit sceneUpdated();
+        for(Card* c : m_kitty)
+            emit showCard(c, true);
+
         Hand discards = m_current_player->yourTurnToSelectKitty(m_kitty);
         if(m_abort) return ABORT;
 
         debug << m_current_player->name << " discarded " << discards;
-        for(Card* card : discards) {
-            card->setLocation(Card::HIDDEN);
-            card->raise(false);
-        }
-        emit sceneUpdated();
+
+        for(Card* card : discards)
+            emit showCard(card, false);
 
         while(m_tricks.size() < 10) {
             Trick* trick = new Trick();
+            // store for posterity
+            m_tricks.push_back(trick);
+
             do {
                 emit updateState(m_current_player->name + "'s turn");
 
                 Card* c = m_current_player->yourTurnToPlay(trick);
                 if(m_abort) return ABORT;
-                c->setFaceUp();
-                emit(sceneUpdated());
+                emit turnUpCard(c, true);
 
                 info << m_current_player->name << " played " << *c;
 
                 trick->playCard(m_current_player, c);
-                if(receivers(SIGNAL(animatePlayCard(Card*))) > 0) {
-                    emit animatePlayCard(c);
+                if(receivers(SIGNAL(animatePlayCard(Seat,Card*,uint))) > 0) {
+                    m_current_player->reposition();
+                    emit animatePlayCard(m_current_player->pos(), c, trick->size());
                     m_wait.wait(&m_mutex);
                 }
-                c->setHandOffset(trick->size(), 4);
-                c->setLocation(Card::TRICK);
-                emit sceneUpdated();
 
                 m_current_player = m_current_player->next;
             } while(!trick->allPlayed());
@@ -136,10 +144,7 @@ Contract::ExitState Contract::start() {
                 m_wait.wait(&m_mutex);
             }
             for(Card* c: discards)
-                c->setLocation(Card::HIDDEN);
-
-            // store for posterity
-            m_tricks.push_back(trick);
+                emit showCard(c, false);
 
             m_current_player = winner;
         }
@@ -158,6 +163,14 @@ void Contract::wake() {
 void Contract::abort() {
     info;
     m_abort = true;
+}
+
+void Contract::reposition() {
+    trace;
+    if(!m_tricks.empty())
+        for(int i=0; i<m_tricks.back()->size(); ++i) {
+            emit placeCard(m_tricks.back()->card(i), m_tricks.back()->player(i)->pos(), i);
+        }
 }
 
 bool Contract::successful() const {

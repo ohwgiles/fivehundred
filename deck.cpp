@@ -52,11 +52,12 @@ Deck::~Deck() {
         c->~Card();
 }
 
-void Deck::hide() {
+void Deck::show(bool en) {
     trace;
     for(Card* c: *this) {
-        c->setLocation(Card::HIDDEN);
-        c->raise(false);
+//        c->setLocation(Card::HIDDEN);
+//        c->raise(false);
+        if(en) c->show(); else c->hide();
     }
 }
 
@@ -69,8 +70,6 @@ void Deck::deal(Cards& playerOne, Cards& playerTwo, Cards& playerThree, Cards& p
     playerTwo.clear();
     playerThree.clear();
     playerFour.clear();
-    for(Card* c: *this)
-        c->setFaceUp(false);
     for(unsigned i = 0; i < 10; ++i) {
         playerOne.push_back(*it++);
         playerTwo.push_back(*it++);
@@ -83,7 +82,3 @@ void Deck::deal(Cards& playerOne, Cards& playerTwo, Cards& playerThree, Cards& p
     kitty.push_back(*it);
 }
 
-void Deck::reposition(QSize screen) {
-    for(Card* c: *this)
-        c->reposition(screen);
-}

@@ -61,13 +61,20 @@ public:
     void abort();
     std::vector<Card*> m_kitty;
 
+    void reposition();
+
 signals:
+    void showCard(Card* card, bool en);
+    void placeCard(Card* card, Seat orientation, unsigned stackOrder);
+    void turnUpCard(Card* card, bool faceUp);
     void sceneUpdated();
     void updateState(QString);
     void updateBid(QString);
     void updateEastWestTricks(QString);
     void updateNorthSouthTricks(QString);
-    void animatePlayCard(Card*);
+    void animateMakeBid(Seat,Bid);
+    void animateEndBidding();
+    void animatePlayCard(Seat,Card*,uint);
     void animateCollectCards(std::vector<Card*>, Seat);
 
 protected slots:

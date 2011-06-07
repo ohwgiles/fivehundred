@@ -39,11 +39,8 @@ public:
     //! Shuffle all cards and deal them out
     void deal(Cards& playerOne, Cards& playerTwo, Cards& playerThree, Cards& playerFour, Cards& kitty);
 
-    //! Trigger all the cards to reposition themselves
-    void reposition(QSize screen);
-
-    //! Trigger all the cards to hide themselves
-    void hide();
+    //! Trigger all the cards to show/hide themselves
+    void show(bool en = true);
 
 private:
     char __cardspace[43*sizeof(Card)];

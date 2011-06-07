@@ -21,8 +21,8 @@
 */
 #include <sstream>
 #include <vector>
+#include <QString>
 
-class QString;
 /*!
   \class Log
   \brief Basic logging functionality
@@ -57,9 +57,16 @@ private:
 };
 
 
-//! This is here cos I couldn't think of a better place. It's a convenience to log QStrings as ASCII
+//! Couldn't think of a better place. It's a convenience to log QStrings as ASCII
 std::ostream& operator<<(std::ostream& s, const QString& str);
 
+//! Couldn't think of a better place. Convert types with ostream operators to QStrings
+template<typename T>
+QString toQString(const T& type) {
+    std::stringstream ss;
+    ss << type;
+    return QString::fromStdString(ss.str());
+}
 
 //! Convenience function to print a vector to any ostream
 template<typename T>

@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>692</width>
-    <height>255</height>
+    <width>283</width>
+    <height>195</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -28,249 +28,21 @@
   <property name="modal">
    <bool>false</bool>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="sizeConstraint">
-    <enum>QLayout::SetDefaultConstraint</enum>
-   </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0">
-        <widget class="QRadioButton" name="r6s">
-         <property name="text">
-          <string>6♠</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QRadioButton" name="r6c">
-         <property name="text">
-          <string>6♣</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QRadioButton" name="r6d">
-         <property name="text">
-          <string>6♦</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="3">
-        <widget class="QRadioButton" name="r6h">
-         <property name="text">
-          <string>6♥</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="4">
-        <widget class="QRadioButton" name="r6n">
-         <property name="text">
-          <string>6 NT</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QRadioButton" name="r7s">
-         <property name="text">
-          <string>7♠</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QRadioButton" name="r7c">
-         <property name="text">
-          <string>7♣</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QRadioButton" name="r7d">
-         <property name="text">
-          <string>7♦</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="3">
-        <widget class="QRadioButton" name="r7h">
-         <property name="text">
-          <string>7♥</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="4">
-        <widget class="QRadioButton" name="r7n">
-         <property name="text">
-          <string>7 NT</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="5">
-        <widget class="QRadioButton" name="rcm">
-         <property name="text">
-          <string>Closed Misere</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QRadioButton" name="r8s">
-         <property name="text">
-          <string>8♠</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QRadioButton" name="r8c">
-         <property name="text">
-          <string>8♣</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="2">
-        <widget class="QRadioButton" name="r8d">
-         <property name="text">
-          <string>8♦</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="3">
-        <widget class="QRadioButton" name="r8h">
-         <property name="text">
-          <string>8♥</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="4">
-        <widget class="QRadioButton" name="r8n">
-         <property name="text">
-          <string>8 NT</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QRadioButton" name="r9s">
-         <property name="text">
-          <string>9♠</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QRadioButton" name="r9c">
-         <property name="text">
-          <string>9♣</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="2">
-        <widget class="QRadioButton" name="r9d">
-         <property name="text">
-          <string>9♦</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="3">
-        <widget class="QRadioButton" name="r9h">
-         <property name="text">
-          <string>9♥</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="4">
-        <widget class="QRadioButton" name="r9n">
-         <property name="text">
-          <string>9 NT</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QRadioButton" name="r10s">
-         <property name="text">
-          <string>10♠</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QRadioButton" name="r10c">
-         <property name="text">
-          <string>10♣</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="2">
-        <widget class="QRadioButton" name="r10d">
-         <property name="text">
-          <string>10♦</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="3">
-        <widget class="QRadioButton" name="r10h">
-         <property name="text">
-          <string>10♥</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="4">
-        <widget class="QRadioButton" name="r10n">
-         <property name="text">
-          <string>10 NT</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="5">
-        <widget class="QRadioButton" name="rom">
-         <property name="text">
-          <string>Open Misere</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <widget class="QTableWidget" name="tableWidget">
-       <property name="verticalScrollBarPolicy">
-        <enum>Qt::ScrollBarAsNeeded</enum>
-       </property>
-       <property name="horizontalScrollBarPolicy">
-        <enum>Qt::ScrollBarAlwaysOff</enum>
-       </property>
-       <property name="autoScroll">
-        <bool>false</bool>
-       </property>
-       <property name="editTriggers">
-        <set>QAbstractItemView::NoEditTriggers</set>
-       </property>
-       <property name="selectionMode">
-        <enum>QAbstractItemView::NoSelection</enum>
-       </property>
-       <property name="selectionBehavior">
-        <enum>QAbstractItemView::SelectRows</enum>
-       </property>
-       <property name="showGrid">
-        <bool>true</bool>
-       </property>
-       <property name="gridStyle">
-        <enum>Qt::SolidLine</enum>
-       </property>
-       <property name="cornerButtonEnabled">
-        <bool>false</bool>
-       </property>
-       <attribute name="horizontalHeaderVisible">
-        <bool>false</bool>
-       </attribute>
-       <attribute name="horizontalHeaderStretchLastSection">
-        <bool>true</bool>
-       </attribute>
-       <attribute name="verticalHeaderVisible">
-        <bool>false</bool>
-       </attribute>
-       <attribute name="verticalHeaderDefaultSectionSize">
-        <number>10</number>
-       </attribute>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="BidGrid" name="bidgrid" native="true"/>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
     <spacer name="verticalSpacer">
@@ -321,6 +93,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>BidGrid</class>
+   <extends>QWidget</extends>
+   <header>bidgrid.hpp</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -42,6 +42,13 @@ void Game::abort() {
         p->abort();
 }
 
+void Game::reposition() {
+    trace;
+    for(Player* p: m_players)
+        p->reposition();
+    m_contracts.back()->reposition();
+}
+
 void Game::wake() {
     trace;
     m_wait.wakeAll();
@@ -50,9 +57,9 @@ void Game::wake() {
 Game::Game(Deck* deck) :
     QThread(),
     m_deck(deck),
-    m_players({0,0,0,0}),
     m_num_players(0),
     m_first_player(0),
+    m_players({0,0,0,0}),
     m_scores_sum({0,0})
 {
     trace;
@@ -93,13 +100,16 @@ void Game::run() {
         m_deck->deal(m_players[0]->hand, m_players[1]->hand, m_players[2]->hand, m_players[3]->hand, m_contracts.back()->m_kitty);
         for(Player* p: m_players) {
             for(Card* c: p->hand) {
-                c->setLocation(Card::HAND);
-                c->setFromSeat(p->pos());
+                //c->setLocation(Card::HAND);
+                //c->setFromSeat(p->pos());
+                //c->show();
+                emit showCard(c, true);
             }
         }
-        for(Card* c: m_contracts.back()->m_kitty)
-            c->setLocation(Card::HIDDEN);
-        emit sceneUpdated();
+//        for(Card* c: m_contracts.back()->m_kitty)
+//            c->setLocation(Card::HIDDEN);
+        //emit sceneUpdated();
+        reposition();
 
         Contract::ExitState state = m_contracts.back()->start();
         switch(state) {

@@ -52,6 +52,7 @@ void Trick::playCard(Player *player, Card *card) {
     m_num_cards++;
 }
 
+
 bool Trick::Comparator::operator ()(const Card* lhs, const Card* rhs) const {
     trace;
     if(lhs->suit(trumps) == rhs->suit(trumps))

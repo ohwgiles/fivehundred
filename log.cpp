@@ -35,11 +35,11 @@ static char log_str[][6] = {
 };
 
 #define COLOR(loglevel) ( \
-    loglevel==Log::TRACE ? PURPLE :\
-    loglevel==Log::DEBUG ? TEAL :\
-    loglevel==Log::USER  ? YELLOW :\
-    loglevel==Log::INFO  ? GREEN :\
-    loglevel==Log::ERROR ? RED : 0)
+    loglevel==Log::TRACE ? COLOUR_PURPLE :\
+    loglevel==Log::DEBUG ? COLOUR_TEAL :\
+    loglevel==Log::USER  ? COLOUR_YELLOW :\
+    loglevel==Log::INFO  ? COLOUR_GREEN :\
+    loglevel==Log::ERROR ? COLOUR_RED : 0)
 
 Log::Log(Level level) :
         m_level(level)
@@ -75,26 +75,26 @@ Log::~Log() {
         switch(m_level) {
         case USER:
             printf("[");
-            os::setStdoutColor(YELLOW);
+            os::setStdoutColor(COLOUR_YELLOW);
             printf("%s", str_level);
-            os::setStdoutColor(NORMAL);
+            os::setStdoutColor(COLOUR_NORMAL);
             printf("] %s: ", m_funcname);
-            os::setStdoutColor(WHITE);
+            os::setStdoutColor(COLOUR_WHITE);
             printf("%s", m_stream.str().c_str());
-            os::setStdoutColor(NORMAL);
+            os::setStdoutColor(COLOUR_NORMAL);
             printf("\n");
             break;
         default:
             printf("[");
             os::setStdoutColor(COLOR(m_level));
             printf("%s", str_level);
-            os::setStdoutColor(NORMAL);
+            os::setStdoutColor(COLOUR_NORMAL);
             printf("] %s:%d", m_funcname, m_line);
             if(!m_stream.str().empty()) {
                 printf(": ");
-                os::setStdoutColor(WHITE);
+                os::setStdoutColor(COLOUR_WHITE);
                 printf("%s", m_stream.str().c_str());
-                os::setStdoutColor(NORMAL);
+                os::setStdoutColor(COLOUR_NORMAL);
             }
             printf("\n");
             break;

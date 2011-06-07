@@ -26,42 +26,36 @@
 
 const char Card::className[] = "Card";
 
+QPixmap* Card::back_pixmap(0);
+
+void Card::createBackPixmap() {
+    back_pixmap = new QPixmap(QString(os::GFX_PATH) + "back.gif");
+}
+
 Card::Card() :
     m_suit(Suit::NONE),
-    m_value(Card::Value(0))
+    m_value(Card::Value(0)),
+    m_face_up(false),
+    m_raised(false)
 {
-    m_new_display = m_old_display = {
-        HIDDEN,
-        1,
-        SOUTH,
-        false,
-        false
-    };
-
     fatal(error << "cannot use default Card constructor");
 }
 
 Card::Card(Suit suit, Value val):
-        QObject(),
-        QGraphicsPixmapItem(),
-        m_suit(suit),
-        m_value(val)
+    QObject(),
+    QGraphicsPixmapItem(),
+    m_suit(suit),
+    m_value(val),
+    m_pixmap(findImage(suit,val)),
+    m_face_up(false),
+    m_raised(false)
 {
     trace;
     if(suit == Suit::NONE && val != JOKER)
         fatal(error<<"Invalid parameters to Card ctor");
-    setPixmap(QPixmap(QString(os::GFX_PATH) + "back.gif"));
+    setPixmap(*back_pixmap);
     setOffset(-1*pixmap().width()/2, -1*pixmap().height()/2);
-    //setOffset(-1*WIDTH/2, -1*HEIGHT/2);
-    m_new_display = m_old_display = {
-        HIDDEN,
-        1,
-        SOUTH,
-        false,
-        false
-    };
     update();
-    hide();
 }
 
 Card::~Card() {}
@@ -94,77 +88,29 @@ bool Card::isTrump(Suit trumps) const {
     return false;
 }
 
-QPointF Card::expectedPosition(QSize screen, Location loc) const {
-    trace;
-    unsigned width = screen.width();
-    unsigned height = screen.height();
 
-    switch(loc) {
-    case HAND:
-        switch(m_old_display.from_seat) {
-        case SOUTH:
-            return QPointF(H_OFFSET * m_old_display.relative_offset+width/2 + H_OFFSET/2, height - EDGE_OFFSET - (m_old_display.raised ? RAISE : 0));
-            break;
-        case WEST:
-            return QPointF(EDGE_OFFSET + (m_old_display.raised ? RAISE : 0), height/2 + H_OFFSET*m_old_display.relative_offset + H_OFFSET/2);
-            break;
-        case NORTH:
-            return QPointF(H_OFFSET*(-m_old_display.relative_offset)+width/2 - H_OFFSET/2, EDGE_OFFSET + (m_old_display.raised ? RAISE : 0));
-            break;
-        case EAST:
-            return QPointF(width-EDGE_OFFSET - (m_old_display.raised ? RAISE : 0), height/2 + H_OFFSET*(-m_old_display.relative_offset) - H_OFFSET/2);
-            break;
+void Card::setFaceUp(bool setFaceUp) {
+    trace;
+    //m_new_display.faceup = setFaceUp;
+    if(m_face_up != setFaceUp) {
+        if(setFaceUp) {
+            setPixmap(m_pixmap);
+        } else {
+            setPixmap(*back_pixmap);
         }
-        break;
-    case HIDDEN:
-        return QPointF(0,0);
-    case TRICK:
-        switch(m_old_display.from_seat) {
-        case SOUTH:
-            return QPointF(width/2 + H_OFFSET, height/2 + H_OFFSET);
-            break;
-        case WEST:
-            return QPointF(width/2 - H_OFFSET, height/2 + H_OFFSET);
-            break;
-        case NORTH:
-            return QPointF(width/2 - H_OFFSET, height/2 - H_OFFSET);
-            break;
-        case EAST:
-            return QPointF(width/2 + H_OFFSET, height/2 - H_OFFSET);
-            break;
-        }
+        m_face_up = setFaceUp;
     }
-    return QPointF(0,0);
+    update();
 }
 
-void Card::setLocation(Location l) const {
+void Card::raise(bool v) {
     trace;
-    m_new_display.location = l;
-}
-
-void Card::setHandOffset(unsigned i, unsigned sz) const {
-    trace;
-    m_new_display.relative_offset = i - double(sz) / 2.0;
-}
-
-void Card::setFromSeat(Seat s) const {
-    trace;
-    m_new_display.from_seat = s;
-}
-
-void Card::setFaceUp(bool setFaceUp) const {
-    trace;
-    m_new_display.faceup = setFaceUp;
-}
-
-void Card::raise(bool v) const {
-    trace;
-    m_new_display.raised = v;
+    m_raised = v;
 }
 
 bool Card::raised() const {
     trace;
-    return m_new_display.raised;
+    return m_raised;
 }
 
 Suit Card::suit(Suit trump) const {
@@ -177,55 +123,6 @@ Card::Value Card::value(Suit trump) const {
     else return m_value;
 }
 
-
-void Card::reposition(QSize screen) {
-    trace;
-
-    if(m_new_display.from_seat != m_old_display.from_seat) {
-        switch(m_new_display.from_seat) {
-        case WEST:
-            setRotation(90);
-            break;
-        case EAST:
-            setRotation(-90);
-            break;
-        default:
-            setRotation(0);
-        }
-        m_old_display.from_seat = m_new_display.from_seat;
-    }
-
-    if(m_new_display.faceup != m_old_display.faceup) {
-        if(m_new_display.faceup)
-            setPixmap(QPixmap(findImage(m_suit,m_value)));
-        else
-            setPixmap(QPixmap(QString(os::GFX_PATH) + "back.gif"));
-        m_old_display.faceup = m_new_display.faceup;
-    }
-
-    if(m_new_display.location != m_old_display.location || m_new_display.relative_offset != m_old_display.relative_offset) {
-        switch(m_new_display.location) {
-        case HAND:
-            setZValue(20 + int(2*m_new_display.relative_offset));
-            show();
-            break;
-        case TRICK:
-            setZValue(-50 + int(m_new_display.relative_offset));
-            show();
-            break;
-        case HIDDEN:
-            hide();
-            break;
-        }
-        m_old_display.location = m_new_display.location;
-        m_old_display.relative_offset = m_new_display.relative_offset;
-    }
-
-    m_old_display.raised = m_new_display.raised;
-
-    setOpacity(1);
-    setPos(expectedPosition(screen, m_new_display.location));
-}
 
 
 std::ostream& operator<<(std::ostream& s, const Card& c) {

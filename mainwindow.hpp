@@ -22,26 +22,21 @@
 #include <QMainWindow>
 #include <QLabel>
 #include <QGraphicsTextItem>
-#include "seat.hpp"
+#include "table.hpp"
+#include "bid.hpp"
 
 namespace Ui {
     class MainWindow;
 }
 
 // Forward Declarations
-class QGraphicsScene;
-class Deck;
-class BidDialog;
-class QAbstractListModel;
-class QPushButton;
+class Game;
 class Human;
-class Card;
 class Bidding;
 class Contract;
-class Game;
+class BidDialog;
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
@@ -51,20 +46,8 @@ public:
 protected:
     void resizeEvent(QResizeEvent* event);
     void resetUI(); //!< Hide all cards, set all scores to zero, etc
-    void repositionPlayerNames();
-
-signals:
-    void reposition();
-    void animationComplete(); //!< Emitted when the GUI has finished animating an object
 
 protected slots:
-    void updateDisplay(); //!< The worker thread can cause the GUI to be updated
-    void showBidDialog(Human* player, Bidding* bids);
-    void showKittyButton(bool); //!< Human players can request the kitty button
-    void enableKittyButton(bool); //!< Human players can request the kitty button
-    void animatePlayCard(Card*); //!< the Contract requests animations
-    void animateCollectCards(std::vector<Card*>, Seat); //!< the Contract requests animations
-    void animationComplete_(); //!< Internal callback when the animation is complete
     void threadFinished(); //!< The worker thread has completed, i.e. Game over
     void connectContract(Contract* contract);
     void showScores();
@@ -83,17 +66,15 @@ private:
     void newGame();
 
     Ui::MainWindow *ui;
+    QPushButton* m_kittybutton;
+    BidDialog* m_biddialog;
 
     Game* m_game;
-    QGraphicsScene* m_scene;
-    Deck* m_deck;
-    BidDialog* m_biddialog;
-    QPushButton* m_kittybutton;
-    QGraphicsProxyWidget* m_kittybuttonproxy;
+    Table m_table;
 
     bool m_open_hand; //!< Whether the Computer players play open hand
 
-    enum Action { NONE, NEW_GAME, SHOW_SCORES, CLOSE };
+    enum Action { NONE, NEW_GAME, CLOSE };
     Action m_next_action; //!< Allow functionality after the worker thread has completed
 
     QLabel m_lbl_status;
@@ -105,7 +86,6 @@ private:
     QLabel m_lbl_score_ns;
     QLabel m_lbl_bid;
 
-    QGraphicsTextItem m_player_names[4];
 };
 
 
