@@ -74,7 +74,5 @@ target_link_libraries(
 
 # Add tests
 find_package(GTest)
-if(${GTEST_FOUND})
     add_library(500 ${FIVEHUNDRED_SOURCES})
     add_subdirectory(test)
-endif()

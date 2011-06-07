@@ -56,7 +56,7 @@ void Deck::show(bool en) {
     trace;
     for(Card* c: *this) {
 //        c->setLocation(Card::HIDDEN);
-//        c->raise(false);
+        c->raise(false);
         if(en) c->show(); else c->hide();
     }
 }

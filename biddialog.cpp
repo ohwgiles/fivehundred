@@ -23,6 +23,7 @@
 #include "bidding.hpp"
 #include <QVariant>
 #include <QMoveEvent>
+#include <QMessageBox>
 #include <sstream>
 #include "bidgrid.hpp"
 #include "log.hpp"
@@ -34,13 +35,8 @@ BidDialog::BidDialog(QWidget *parent) :
     trace;
     ui->setupUi(this);
 
-//    ui->tableWidget->setColumnCount(2);
-//    ui->tableWidget->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-//    ui->tableWidget->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+    this->resize(ui->bidgrid->size());
 
-    ui->pushButton->setEnabled(false);
-
-    connect(this, SIGNAL(accepted()), this, SLOT(dialog_accepted()));
     connect(this, SIGNAL(rejected()), this, SLOT(dialog_rejected()));
     connect(ui->bidgrid, SIGNAL(bidSelected()), this, SLOT(bidSelected()));
 }
@@ -54,68 +50,38 @@ BidDialog::~BidDialog()
 void BidDialog::show(Human* player, Bidding* bids) {
     debug;
     m_player = player;
+    ui->buttonBid->setEnabled(false);
 
-    Bid winner(bids->maxBid());
-/*
-    ui->r6s->setEnabled(winner < Bid(Suit::SPADES, 6));
-    ui->r7s->setEnabled(winner < Bid(Suit::SPADES, 7));
-    ui->r8s->setEnabled(winner < Bid(Suit::SPADES, 8));
-    ui->r9s->setEnabled(winner < Bid(Suit::SPADES, 9));
-    ui->r10s->setEnabled(winner < Bid(Suit::SPADES, 10));
+    if(bids->hasWinner() && bids->winner().player == (Player*)player) {
+        if(QMessageBox::question(0, "You have won the bid",
+            "Would you like to raise your bid? If you change suit, other players may bid again.",
+            QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No) {
+            this->reject();
+            return;
+        }
+    }
 
-    ui->r6c->setEnabled(winner < Bid(Suit::CLUBS, 6));
-    ui->r7c->setEnabled(winner < Bid(Suit::CLUBS, 7));
-    ui->r8c->setEnabled(winner < Bid(Suit::CLUBS, 8));
-    ui->r9c->setEnabled(winner < Bid(Suit::CLUBS, 9));
-    ui->r10c->setEnabled(winner < Bid(Suit::CLUBS, 10));
-
-    ui->r6d->setEnabled(winner < Bid(Suit::DIAMONDS, 6));
-    ui->r7d->setEnabled(winner < Bid(Suit::DIAMONDS, 7));
-    ui->r8d->setEnabled(winner < Bid(Suit::DIAMONDS, 8));
-    ui->r9d->setEnabled(winner < Bid(Suit::DIAMONDS, 9));
-    ui->r10d->setEnabled(winner < Bid(Suit::DIAMONDS, 10));
-
-    ui->r6h->setEnabled(winner < Bid(Suit::HEARTS, 6));
-    ui->r7h->setEnabled(winner < Bid(Suit::HEARTS, 7));
-    ui->r8h->setEnabled(winner < Bid(Suit::HEARTS, 8));
-    ui->r9h->setEnabled(winner < Bid(Suit::HEARTS, 9));
-    ui->r10h->setEnabled(winner < Bid(Suit::HEARTS, 10));
-
-    ui->r6n->setEnabled(winner < Bid(Suit::NONE, 6));
-    ui->r7n->setEnabled(winner < Bid(Suit::NONE, 7));
-    ui->r8n->setEnabled(winner < Bid(Suit::NONE, 8));
-    ui->r9n->setEnabled(winner < Bid(Suit::NONE, 9));
-    ui->r10n->setEnabled(winner < Bid(Suit::NONE, 10));
-
-    ui->rcm->setEnabled(winner < Bid(Bid::CLOSED_MISERE));
-    ui->rom->setEnabled(winner < Bid(Bid::OPEN_MISERE));
-*/
-    ui->bidgrid->setWinningBid(winner);
-
-//    ui->tableWidget->clear();
-//    ui->tableWidget->setRowCount(bids->count());
-//    for(unsigned i=0; i<bids->count(); ++i) {
-//        ui->tableWidget->setItem(i, 0, new QTableWidgetItem(bids->at(i).player->name));
-//        std::stringstream ss;
-//        ss << bids->at(i).bid;
-//        ui->tableWidget->setItem(i, 1, new QTableWidgetItem(ss.str().c_str()));
-//    }
-//    ui->tableWidget->reset();
+    Bid winningBid = bids->maxBid();
+    ui->buttonClosedMisere->setEnabled(Bid(Bid::CLOSED_MISERE).worth() > winningBid.worth());
+    ui->buttonOpenMisere->setEnabled(Bid(Bid::OPEN_MISERE).worth() > winningBid.worth());
+    ui->bidgrid->setWinningBid(winningBid);
 
     this->move(m_pos);
     QDialog::show();
 }
 
-void BidDialog::on_pushButton_clicked()
+void BidDialog::on_buttonBid_clicked()
 {
     trace;
-        this->accept();
+    Bid bid = ui->bidgrid->selectedBid();
+    emit(bidMade(m_player, bid));
+    accept();
 }
 
-void BidDialog::on_pushButton_2_clicked()
+void BidDialog::on_buttonPass_clicked()
 {
     trace;
-    this->reject();
+    reject();
 }
 
 void BidDialog::moveEvent(QMoveEvent* event) {
@@ -124,51 +90,21 @@ void BidDialog::moveEvent(QMoveEvent* event) {
 }
 
 void BidDialog::bidSelected() {
-    ui->pushButton->setEnabled(true);
-}
-
-void BidDialog::dialog_accepted() {
-/*    Bid bid(Bid::PASS);
-
-    if(ui->r6s->isChecked()) bid = Bid(Suit::SPADES, 6);
-    if(ui->r7s->isChecked()) bid = Bid(Suit::SPADES, 7);
-    if(ui->r8s->isChecked()) bid = Bid(Suit::SPADES, 8);
-    if(ui->r9s->isChecked()) bid = Bid(Suit::SPADES, 9);
-    if(ui->r10s->isChecked()) bid = Bid(Suit::SPADES, 10);
-
-    if(ui->r6c->isChecked()) bid = Bid(Suit::CLUBS, 6);
-    if(ui->r7c->isChecked()) bid = Bid(Suit::CLUBS, 7);
-    if(ui->r8c->isChecked()) bid = Bid(Suit::CLUBS, 8);
-    if(ui->r9c->isChecked()) bid = Bid(Suit::CLUBS, 9);
-    if(ui->r10c->isChecked()) bid = Bid(Suit::CLUBS, 10);
-
-    if(ui->r6d->isChecked()) bid = Bid(Suit::DIAMONDS, 6);
-    if(ui->r7d->isChecked()) bid = Bid(Suit::DIAMONDS, 7);
-    if(ui->r8d->isChecked()) bid = Bid(Suit::DIAMONDS, 8);
-    if(ui->r9d->isChecked()) bid = Bid(Suit::DIAMONDS, 9);
-    if(ui->r10d->isChecked()) bid = Bid(Suit::DIAMONDS, 10);
-
-    if(ui->r6h->isChecked()) bid = Bid(Suit::HEARTS, 6);
-    if(ui->r7h->isChecked()) bid = Bid(Suit::HEARTS, 7);
-    if(ui->r8h->isChecked()) bid = Bid(Suit::HEARTS, 8);
-    if(ui->r9h->isChecked()) bid = Bid(Suit::HEARTS, 9);
-    if(ui->r10h->isChecked()) bid = Bid(Suit::HEARTS, 10);
-
-    if(ui->r6n->isChecked()) bid = Bid(Suit::NONE, 6);
-    if(ui->r7n->isChecked()) bid = Bid(Suit::NONE, 7);
-    if(ui->r8n->isChecked()) bid = Bid(Suit::NONE, 8);
-    if(ui->r9n->isChecked()) bid = Bid(Suit::NONE, 9);
-    if(ui->r10n->isChecked()) bid = Bid(Suit::NONE, 10);
-
-    if(ui->rcm->isChecked()) bid = Bid(Bid::CLOSED_MISERE);
-    if(ui->rom->isChecked()) bid = Bid(Bid::OPEN_MISERE);
-*/
-    Bid bid = ui->bidgrid->selectedBid();
-    emit(bidMade(m_player, bid));
+    ui->buttonBid->setEnabled(true);
 }
 
 void BidDialog::dialog_rejected()
 {
     emit(bidMade(m_player, Bid(Bid::PASS)));
     debug;
+}
+
+void BidDialog::on_buttonClosedMisere_clicked() {
+    emit bidMade(m_player, Bid(Bid::CLOSED_MISERE));
+    accept();
+}
+
+void BidDialog::on_buttonOpenMisere_clicked() {
+    emit bidMade(m_player, Bid(Bid::OPEN_MISERE));
+    accept();
 }

@@ -36,6 +36,7 @@ public:
     Bid(Suit suit, int numTricks);
 
     static int suitToInt(Suit s);
+    static Suit intToSuit(int i);
 
     bool operator<(const Bid& other) const;
     bool operator==(const Bid& other) const;

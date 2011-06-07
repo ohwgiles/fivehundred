@@ -55,10 +55,11 @@ signals:
 
 private slots:
     void bidSelected();
-    void on_pushButton_2_clicked();
-    void on_pushButton_clicked();
-    void dialog_accepted();
+    void on_buttonPass_clicked();
+    void on_buttonBid_clicked();
     void dialog_rejected();
+    void on_buttonClosedMisere_clicked();
+    void on_buttonOpenMisere_clicked();
 };
 
 #endif // BIDDIALOG_HPP

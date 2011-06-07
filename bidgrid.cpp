@@ -1,8 +1,27 @@
+#include "bidgrid.hpp"
+/*!
+  \file bidgrid.cpp
+    Copyright 2011 Oliver Giles
+
+    This file is part of Five Hundred.
+
+    Five Hundred is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Five Hundred is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Five Hundred.  If not, see <http://www.gnu.org/licenses/>.
+*/
 #include <QPainter>
 #include <QMouseEvent>
 #include "bid.hpp"
 #include "os.hpp"
-#include "bidgrid.hpp"
 #include "log.hpp"
 
 BidGrid::BidGrid(QWidget *parent) :
@@ -13,7 +32,6 @@ BidGrid::BidGrid(QWidget *parent) :
     m_grid_image(os::GFX_PATH + "bidgrid.png")
 {
     this->setMouseTracking(true);
-    //resize(m_grid_image.width(), m_grid_image.height());
     this->setMinimumSize(m_grid_image.size());
     this->setMaximumSize(m_grid_image.size());
 }
@@ -62,6 +80,36 @@ void BidGrid::paintEvent(QPaintEvent *) {
     }
     drawRect(painter, 5, 1);
     drawRect(painter, 5, 3);
+
+    painter.setPen(Qt::black);
+    for(uint i=0; i<5; ++i) {
+        for(uint j=0; j<5; ++j) {
+            QString str = QString::number(Bid(Bid::intToSuit(i), j+6).worth());
+            QRectF extents = painter.boundingRect(QRectF(), str);
+            painter.drawText(
+                X_OFFSET + i*X_SIZE + (X_SIZE-extents.width())/2,
+                Y_OFFSET + j*Y_SIZE + (Y_SIZE+extents.height())/2,
+                str);
+        }
+    }
+    QString str;
+    QRectF extents;
+
+    str = QString::number(Bid(Bid::CLOSED_MISERE).worth());
+    extents = painter.boundingRect(QRectF(), str);
+    painter.drawText(
+        X_OFFSET + 5*X_SIZE + (X_SIZE-extents.width())/2,
+        Y_OFFSET + 1*Y_SIZE + (Y_SIZE+extents.height())/2,
+        str);
+
+    str = QString::number(Bid(Bid::OPEN_MISERE).worth());
+    extents = painter.boundingRect(QRectF(), str);
+    painter.drawText(
+        X_OFFSET + 5*X_SIZE + (X_SIZE-extents.width())/2,
+        Y_OFFSET + 3*Y_SIZE + (Y_SIZE+extents.height())/2,
+        str);
+
+
     painter.drawPixmap(0, 0, m_grid_image);
 }
 
@@ -86,7 +134,7 @@ int BidGrid::mousePosToIndex(QMouseEvent* event) {
 
 void BidGrid::mousePressEvent(QMouseEvent* event) {
     int result = mousePosToIndex(event);
-    if(result != m_selected_square) {
+    if(result != m_selected_square && result > m_disabled_threshold) {
         m_selected_square = result;
         this->update();
         emit bidSelected();

@@ -6,6 +6,7 @@ int main(int argc, char **argv) {
 	testing::InitGoogleTest(&argc, argv);
 	// we need a QApplication since Cards contain QPixmaps
 	QApplication app(argc, argv);
+	Card::createBackPixmap();
 	return RUN_ALL_TESTS();
 }
 

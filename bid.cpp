@@ -53,6 +53,16 @@ int Bid::suitToInt(Suit s) {
     fatal(error<<"Nonexistant suit type");
 }
 
+Suit Bid::intToSuit(int i) {
+    trace;
+    if(i == 0) return Suit::SPADES;
+    if(i == 1) return Suit::CLUBS;
+    if(i == 2) return Suit::DIAMONDS;
+    if(i == 3) return Suit::HEARTS;
+    if(i == 4) return Suit::NONE;
+    fatal(error<<"Nonexistant suit type");
+}
+
 const Suit& Bid::suit() const {
     if(m_type != NORMAL)
         fatal(error<<"Cannot determine suit of bid: "<<*this);
