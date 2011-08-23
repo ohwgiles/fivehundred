@@ -57,6 +57,7 @@ struct os {
     static QString GFX_PATH; //!< Filesystem path to graphics
 
     static const char* getUserName(); //!< Return the current user name (to use for player name)
+    static void interrogate(const char* message); //!< Ask for input on stdin
 #if defined(__linux) || defined(__APPLE__)
     static void setStdoutColor(const char* colorcode); //!< Linux definition, will not be implemented otherwise
 #elif defined(__WIN32)

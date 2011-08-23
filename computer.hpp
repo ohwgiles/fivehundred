@@ -20,16 +20,16 @@
     along with Five Hundred.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "player.hpp"
+#include "scriptable.hpp"
 
 // Forward Declarations
 struct lua_State;
-struct LuaRegistration;
 
 /*!
   \class Computer
   \brief Player controlled by a Lua script
 */
-class Computer : public Player {
+class Computer : public Player, public Scriptable {
 public:
     Computer(Seat pos, const QString& name, const QString& script, bool play_open_hand);
     virtual ~Computer();
@@ -39,20 +39,19 @@ public:
     virtual Card* yourTurnToPlay(const Trick*);
     virtual Bid yourTurnToBid(const Bidding* bidlist);
     virtual void bidWon(const Bidding* bidlist, const Player* winner);
-    virtual Hand yourTurnToSelectKitty(const Hand& kitty);
+    virtual Hand yourTurnToSelectKitty(Hand& kitty);
 
     virtual void trickWon(const Trick& trick, const Player* winner);
 
-    Suit m_trumps;
-    Suit m_lead;
+    void testCallFunc(const char* func);
+    virtual QString name() { return this->Player::name(); }
 
 protected:
 
     void pushBidList(const Bidding* bidlist);
     void registerHand();
+    Hand::iterator findCard(Hand& collection, const SimpleCard* card) const;
 
-    lua_State* L;
-    LuaRegistration* luareg;
 
     Bidding* m_current_bidlist;
     Trick* m_current_trick;

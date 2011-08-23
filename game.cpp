@@ -30,9 +30,9 @@ void Game::updateScores(int northsouth, int eastwest) {
     trace;
     m_scores.push_back(std::pair<int,int>(northsouth, eastwest));
     m_scores_sum.first += m_scores.back().first;
-    info << m_players[NORTH]->name << "/" << m_players[SOUTH]->name << "'s score is " << m_scores_sum.first;
+    info << m_players[NORTH]->name() << "/" << m_players[SOUTH]->name() << "'s score is " << m_scores_sum.first;
     m_scores_sum.second += m_scores.back().second;
-    info << m_players[EAST]->name << "/" << m_players[WEST]->name << "'s score is " << m_scores_sum.second;
+    info << m_players[EAST]->name() << "/" << m_players[WEST]->name() << "'s score is " << m_scores_sum.second;
 }
 
 void Game::abort() {
@@ -77,7 +77,14 @@ Game::~Game() {
 
 void Game::addPlayer(Player* new_player) {
     trace;
-    if(m_num_players >= 4) fatal(error<<"Already have 4 players");
+    if(m_num_players >= 4)
+        fatal(error<<"Already have 4 players");
+    for(int i=0; i<m_num_players; ++i) {
+        if(m_players[i]->name() == new_player->name()) {
+            error << "Duplicate named players " << new_player->name() << ", renaming to " << new_player->name() << m_num_players;
+            new_player->setName(new_player->name() + QString::number(m_num_players));
+        }
+    }
     m_players[m_num_players++] = new_player;
 }
 
@@ -109,7 +116,9 @@ void Game::run() {
 //        for(Card* c: m_contracts.back()->m_kitty)
 //            c->setLocation(Card::HIDDEN);
         //emit sceneUpdated();
+        info << "before";
         reposition();
+        info << "after";
 
         Contract::ExitState state = m_contracts.back()->start();
         switch(state) {
@@ -131,11 +140,7 @@ void Game::run() {
             break;
         case Contract::SUCCESS: {
             const Contract* c = m_contracts.back();
-            const Bidding::Pair& p = c->bidWinner();
-            if(p.player == m_players[SOUTH] || p.player == m_players[NORTH])
-                updateScores((c->successful() ? 1 : -1) * p.bid.worth(), 10 * (c->tricksWon(m_players[EAST]) + c->tricksWon(m_players[WEST])));
-            else
-                updateScores(10 * (c->tricksWon(m_players[NORTH]) + c->tricksWon(m_players[SOUTH])), (c->successful() ? 1 : -1) * p.bid.worth());
+            updateScores(c->teamScoreResult(m_players[SOUTH]), c->teamScoreResult(m_players[WEST]));
             emit(updateNorthSouthScore(QString::number(m_scores_sum.first)));
             emit(updateEastWestScore(QString::number(m_scores_sum.second)));
             if(receivers(SIGNAL(contractComplete())) > 0) {
@@ -143,10 +148,10 @@ void Game::run() {
                 m_wait.wait(&m_mutex);
             }
             if(m_scores_sum.first >= 500 || m_scores_sum.second <= -500) {
-                info << m_players[NORTH]->name << "/" << m_players[SOUTH]->name << " won the game";
+                info << m_players[NORTH]->name() << "/" << m_players[SOUTH]->name() << " won the game";
                 return;
             } else if(m_scores_sum.second >= 500 || m_scores_sum.first <= -500) {
-                info << m_players[EAST]->name << "/" << m_players[WEST]->name << " won the game";
+                info << m_players[EAST]->name() << "/" << m_players[WEST]->name() << " won the game";
                 return;
             }
             disconnect(m_contracts.back());

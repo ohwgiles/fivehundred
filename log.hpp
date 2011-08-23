@@ -75,14 +75,21 @@ std::ostream& operator<<(std::ostream& s, const std::vector<T*>& v) {
         s << **it << (*it == v.back() ? "" : ", ");
     return s;
 }
-
+#ifdef NDEBUG
+#define trace Log(Log::TRACE).get(0, 0)
+#define debug Log(Log::DEBUG).get(0, 0)
+#define info Log(Log::INFO).get(0, 0)
+#define error Log(Log::ERROR).get(0, 0)
+#else
 #define trace Log(Log::TRACE).get(__PRETTY_FUNCTION__, __LINE__)
 #define debug Log(Log::DEBUG).get(__PRETTY_FUNCTION__, __LINE__)
 #define info Log(Log::INFO).get(__PRETTY_FUNCTION__, __LINE__)
 #define error Log(Log::ERROR).get(__PRETTY_FUNCTION__, __LINE__)
+#endif
 
 //! Converts a Log object into an exception and throws it
-void fatal(const std::basic_ostream<char>&) __attribute__((noreturn));
+//void fatal(const std::basic_ostream<char>&) __attribute__((noreturn));
+#define fatal(var) { var; exit(1); }
 
 
 #endif // LOG_HPP

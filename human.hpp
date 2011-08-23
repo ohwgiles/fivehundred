@@ -52,7 +52,7 @@ public:
     virtual Card* yourTurnToPlay(const Trick*);
     virtual Bid yourTurnToBid(const Bidding* bidlist);
     virtual void bidWon(const Bidding* bidlist, const Player* winner);
-    virtual Hand yourTurnToSelectKitty(const Hand& kitty);
+    virtual Hand yourTurnToSelectKitty(Hand& kitty);
     virtual void trickWon(const Trick& trick, const Player* winner);
 
     //! Wake all current mutexes. Invalid data may be returned, so make sure you don't use it!

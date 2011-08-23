@@ -48,3 +48,18 @@ TEST(Bid, OpenMisere) {
     EXPECT_LT(open_misere, Bid(Suit::SPADES, 10));
     EXPECT_EQ(430, open_misere.worth());
 }
+
+template<class T>
+const char* str(const T& t) {
+	std::stringstream ss;
+	ss << t;
+	return ss.str().c_str();
+}
+
+TEST(Bid, Serialisation) {
+	EXPECT_STREQ(str(Bid(Suit::DIAMONDS, 7)), "7 Diamonds");
+	EXPECT_STREQ(str(Bid(Suit::NONE, 8)), "8 No Trumps");
+	EXPECT_STREQ(str(Bid(Bid::CLOSED_MISERE)), "Closed Misere");
+	EXPECT_STREQ(str(Bid(Bid::OPEN_MISERE)), "Open Misere");
+	EXPECT_STREQ(str(Bid(Bid::PASS)), "Pass");
+}

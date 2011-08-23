@@ -67,6 +67,7 @@ void BidGrid::setWinningBid(const Bid& bid) {
         m_disabled_threshold = result;
         update();
     }
+    m_selected_square = POS_NONE;
 }
 
 void BidGrid::paintEvent(QPaintEvent *) {

@@ -14,7 +14,7 @@ function oppositeSuit(suit)
     if suit == "Hearts" then return "Diamonds" end
 end
 
-function Player:handDealt()
+function handDealt()
     local handStrength = {
         Spades = 0,
         Clubs = 0,
@@ -24,7 +24,7 @@ function Player:handDealt()
     }
     function inc(suit, amount) handStrength[suit] = handStrength[suit] + amount end
 
-    for _,c in ipairs(self.hand) do
+    for _,c in ipairs(HAND) do
         if c:value() == Card.JOKER then
             inc("Spades", 2)
             inc("Clubs", 2)
@@ -47,24 +47,24 @@ function Player:handDealt()
         end
     end
     
-    self.preferred_suit = 0
-    self.preferred_suit_strength = 0
+    PREFERRED_SUIT = 0
+    PREFERRED_SUIT_STRENGTH = 0
     for suit, strength in pairs(handStrength) do
-        if strength > self.preferred_suit_strength then
-            self.preferred_suit = suit
-            self.preferred_suit_strength = strength
+        if strength > PREFERRED_SUIT_STRENGTH then
+            PREFERRED_SUIT = suit
+            PREFERRED_SUIT_STRENGTH = strength
         end
     end
 end
 
-function Player:yourTurnToBid(bids)
-    print("Suit: "..self.preferred_suit.." Strength: "..self.preferred_suit_strength)
+function yourTurnToBid(bids)
+    print("Suit: "..PREFERRED_SUIT.." Strength: "..PREFERRED_SUIT_STRENGTH)
     local my_bid
-    if self.preferred_suit_strength >= 6 then
-        if self.preferred_suit_strength > 10 then
-            self.preferred_suit_strength = 10
+    if PREFERRED_SUIT_STRENGTH >= 6 then
+        if PREFERRED_SUIT_STRENGTH > 10 then
+            PREFERRED_SUIT_STRENGTH = 10
         end
-        my_bid = Bid(self.preferred_suit_strength, self.preferred_suit)
+        my_bid = Bid(PREFERRED_SUIT_STRENGTH, PREFERRED_SUIT)
     else
         my_bid = Bid("Pass")
     end
@@ -84,23 +84,23 @@ function Player:yourTurnToBid(bids)
 end
 
 
-function Player:bidWon(bids, winner)
+function bidWon(bids, winner)
 	for _,p in ipairs(bids) do
                 if p.player == winner and not(p.bid == Bid("Pass")) then
                         print("Setting trumps to "..p.bid:suit())
-			self.trumps = p.bid:suit()
+                        TRUMPS = p.bid:suit()
 		end
 	end
 end
 
-function Player:yourTurnToSelectKitty(kitty)
-	table.sort(self.hand)
-    return {self.hand[1], self.hand[2], self.hand[3]}
+function yourTurnToSelectKitty(kitty)
+        table.sort(HAND)
+    return {HAND[1], HAND[2], HAND[3]}
 end
 
-function Player:lowestCard(suit)
+function lowestCard(suit)
 	local lowest_card = nil
-	for _, c in ipairs(self.hand) do
+        for _, c in ipairs(HAND) do
                 if (suit == nil or suit == c:suit()) and (lowest_card == nil or c < lowest_card) then
                         print("My lowest card is: "..tostring(c))
 			lowest_card = c
@@ -109,9 +109,9 @@ function Player:lowestCard(suit)
 	return lowest_card
 end
 
-function Player:highestCard(suit)
+function highestCard(suit)
 	local highest_card = nil
-	for _, c in ipairs(self.hand) do
+        for _, c in ipairs(HAND) do
 		if (suit == nil or suit == c:suit()) and (highest_card == nil or highest_card < c) then
                         print("My highest card is: "..tostring(c))
 			highest_card = c
@@ -120,23 +120,28 @@ function Player:highestCard(suit)
 	return highest_card
 end
 
-function Player:haveSuit(suit)
+function haveSuit(suit)
         print("Checking my hand for "..suit)
-	for _, c in ipairs(self.hand) do
+        for _, c in ipairs(HAND) do
 		if c:suit() == suit then
                         print("Found "..tostring(c))
 			return true
 		end
 	end
         print("I have no "..suit)
+        table.foreach(HAND, print)
 	return false
 end
 
-function Player:yourTurnToPlay(trick)
+function yourTurnToPlay(trick)
+    -- in no trumps, I like to play the joker as a heart
+    if TRUMPS == "" then for i, c in next, HAND do
+        if c == Card(Card.JOKER) then HAND[i] = Card(Card.JOKER, "Hearts") end
+    end end
     print("Cards in trick: "..#trick)
     if #trick == 0 then
         -- I'm the first player, play anything
-        return self.hand[math.random(#self.hand)]
+        return HAND[math.random(#HAND)]
     elseif #trick >= 2 then
                 print("My partner has already played")
 		-- partner has already played
@@ -149,35 +154,35 @@ function Player:yourTurnToPlay(trick)
 		end
 
         lead_suit = trick[1].card:suit()
-        if not self:haveSuit(lead_suit) then
+        if not haveSuit(lead_suit) then
 			lead_suit = nil
 		end
 		print(lead_suit)
 		if partner_winning then
                         print("Playing lowest card")
-			return self:lowestCard(lead_suit)
+                        return lowestCard(lead_suit)
 		else
                         print("Playing highest card")
-			return self:highestCard(lead_suit)
+                        return highestCard(lead_suit)
 		end
 	else
                 print("My partner hasn't played yet")
 		-- partner hasn't played
 		lead_suit = trick[1].card:suit()
-        if self:haveSuit(lead_suit) then
-			return self:highestCard(lead_suit)
+        if haveSuit(lead_suit) then
+                        return highestCard(lead_suit)
 		else
-			if self:haveSuit(self.trumps) then
-			print("lowest card trimps: "..tostring(self:lowestCard(self.trumps)))
-				return self:lowestCard(self.trumps)
+                        if haveSuit(TRUMPS) then
+                        print("lowest card trumps:",lowestCard(TRUMPS))
+                                return lowestCard(TRUMPS)
 			else
-			print("lowest card nil: "..tostring(self:lowestCard(nil)))
-				return self:lowestCard(nil)
+                        print("lowest card nil:",lowestCard(nil))
+                                return lowestCard(nil)
 			end
 		end
     end
 end
 
 
-function Player:trickWon(trick, winner)
+function trickWon(trick, winner)
 end

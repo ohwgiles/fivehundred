@@ -45,7 +45,7 @@ public:
     friend std::istream& operator>>(std::istream& s, Bid& bid);
 
     Type type() const { return m_type; }
-    const Suit& suit() const;
+    Suit suit() const;
     int tricks() const;
     int worth() const;
 

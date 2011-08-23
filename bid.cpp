@@ -63,10 +63,18 @@ Suit Bid::intToSuit(int i) {
     fatal(error<<"Nonexistant suit type");
 }
 
-const Suit& Bid::suit() const {
-    if(m_type != NORMAL)
+Suit Bid::suit() const {
+    switch(m_type) {
+    case NORMAL:
+        return m_suit;
+        break;
+    case CLOSED_MISERE:
+    case OPEN_MISERE:
+        return Suit::NONE;
+        break;
+    default:
         fatal(error<<"Cannot determine suit of bid: "<<*this);
-    return m_suit;
+    }
 }
 
 int Bid::tricks() const {
@@ -122,7 +130,7 @@ bool Bid::operator==(const Bid& other) const {
 }
 
 int Bid::worth() const {
-    int x;
+    int x(0);
     switch(m_type) {
     case PASS:
         x = 0;
@@ -149,7 +157,10 @@ std::ostream& operator<<(std::ostream& s, const Bid& bid) {
         s << "Pass";
         break;
     case Bid::NORMAL:
-        s << bid.m_tricks << " " << bid.m_suit;
+        if (bid.m_suit == Suit::NONE)
+            s << bid.m_tricks << " No Trumps";
+        else
+            s << bid.m_tricks << " " << bid.m_suit;
         break;
     case Bid::CLOSED_MISERE:
         s << "Closed Misere";
@@ -163,15 +174,23 @@ std::ostream& operator<<(std::ostream& s, const Bid& bid) {
 
 std::istream& operator>>(std::istream& is, Bid& bid) {
     trace;
-    if(is.peek() >= '0' || is.peek() <= '9') {
+    if(is.peek() >= '0' && is.peek() <= '9') {
+        bid.m_type = Bid::NORMAL;
         int numtricks;
         is >> numtricks;
         if(!(numtricks >= 6 && numtricks <= 10)) {
             is.setstate(is.badbit);
+           error << bid;
             return is;
         }
         bid.m_tricks = numtricks;
-        is >> bid.m_suit;
+        if(is.peek() == 'N') {
+            std::string tmp;
+            is >> tmp; // "No"
+            is >> tmp; // "Trumps"
+            bid.m_suit = Suit::NONE;
+        } else
+            is >> bid.m_suit;
     } else {
         std::string str1, str2;
         is >> str1;

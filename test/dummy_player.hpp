@@ -11,7 +11,7 @@ public:
     virtual void handDealt() {}
     virtual Bid yourTurnToBid(const Bidding*) { return Bid(); }
     virtual void bidWon(const Bidding*, const Player*) {}
-    virtual Hand yourTurnToSelectKitty(const Hand& h) { return h; }
+    virtual Hand yourTurnToSelectKitty(Hand& h) { return h; }
     virtual Card* yourTurnToPlay(const Trick*) { return NULL; }
     virtual void trickWon(const Trick&, const Player*) {}
 };

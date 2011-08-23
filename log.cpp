@@ -25,6 +25,7 @@
 //! USER is the default reporting level
 Log::Level Log::ReportingLevel = Log::USER;
 
+#ifndef NDEBUG
 //! The strings to display for each log level
 static char log_str[][6] = {
     "TRACE",
@@ -33,6 +34,7 @@ static char log_str[][6] = {
     "INFO ",
     "ERROR"
 };
+#endif
 
 #define COLOR(loglevel) ( \
     loglevel==Log::TRACE ? COLOUR_PURPLE :\
@@ -71,6 +73,20 @@ std::ostream& operator<<(std::ostream& s, const QString& str) {
 
 Log::~Log() {
     if(m_level >= ReportingLevel) {
+
+#if NDEBUG
+        if(m_stream.str().empty()) return;
+        if(m_level == USER) {
+            os::setStdoutColor(COLOUR_WHITE);
+            printf("%s: ", m_funcname);
+            os::setStdoutColor(COLOUR_NORMAL);
+            printf("%s\n", m_stream.str().c_str());
+        } else {
+            os::setStdoutColor(COLOR(m_level));
+            printf("%s\n", m_stream.str().c_str());
+            os::setStdoutColor(COLOUR_NORMAL);
+        }
+#else
         char* str_level = log_str[int(m_level)];
         switch(m_level) {
         case USER:
@@ -89,7 +105,8 @@ Log::~Log() {
             os::setStdoutColor(COLOR(m_level));
             printf("%s", str_level);
             os::setStdoutColor(COLOUR_NORMAL);
-            printf("] %s:%d", m_funcname, m_line);
+            printf("] ");
+            printf("%s:%d", m_funcname, m_line);
             if(!m_stream.str().empty()) {
                 printf(": ");
                 os::setStdoutColor(COLOUR_WHITE);
@@ -99,6 +116,7 @@ Log::~Log() {
             printf("\n");
             break;
         }
+#endif
         fflush(stdout);
     }
 }
@@ -115,7 +133,7 @@ struct FiveHundredException : public std::exception {
     const char* str;
     virtual const char* what() const throw() { return str; }
 };
-
+/*
 void fatal(const std::basic_ostream<char>& ss) {
     throw FiveHundredException(static_cast<const std::stringstream&>(ss).str().c_str());
-}
+}*/

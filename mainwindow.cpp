@@ -137,7 +137,7 @@ void MainWindow::newGame() {
             connect(p, SIGNAL(placeCard(Card*,Seat,uint,uint)), &m_table, SLOT(placeCardInHand(Card*,Seat,uint,uint)), Qt::QueuedConnection);
             connect(p, SIGNAL(turnUpCard(Card*,bool)), &m_table, SLOT(turnUpCard(Card*,bool)), Qt::QueuedConnection);
             m_game->addPlayer(p);
-            m_table.setPlayerName(Seat(i), cfg[Seat(i)]->getName());
+            m_table.setPlayerName(Seat(i), p->name());
         }
 
         //connect(m_game, SIGNAL(sceneUpdated()), this, SLOT(updateDisplay()));

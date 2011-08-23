@@ -42,7 +42,9 @@ Deck::Deck() {
     new(&__cardspace[j]) Card(Suit::NONE, Card::JOKER);
 
     resize(43);
-    for(unsigned i=0; i < 43; ++i) at(i) = (Card*)&__cardspace[i*sizeof(Card)];
+    for(unsigned i=0; i < 43; ++i) {
+        at(i) = (Card*)&__cardspace[i*sizeof(Card)];
+    }
 
 }
 
@@ -64,6 +66,8 @@ void Deck::show(bool en) {
 void Deck::deal(Cards& playerOne, Cards& playerTwo, Cards& playerThree, Cards& playerFour, Cards& kitty) {
     trace;
     srand(unsigned(time(0)));
+    Card* joker = (Card*)&__cardspace[42*sizeof(Card)];
+    joker->setJokerSuit(Suit::NONE);
     std::random_shuffle(begin(), end());
     std::vector<Card*>::iterator it = begin();
     playerOne.clear();

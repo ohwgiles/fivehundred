@@ -1,26 +1,43 @@
 
-#ifndef LUA_HELPER_H
-#define LUA_HELPER_H
+#ifndef LOOPHA_HPP
+#define LOOPHA_HPP
 
 #include <functional>
 #include <lua.hpp>
 #include "log.hpp"
 
 // Forward declare computer type
-struct Computer;
 struct lua_State;
 
 typedef std::function<void()> fnvoid;
 typedef std::function<void(int)> fnint;
 
+template<typename T>
+struct LuaMemObj {
+    bool deleteMe;
+    T* ptr;
+};
 
 template<typename T>
 static inline T* lua_extract(lua_State* L) {
     trace;
-    T **p = static_cast<T**>(luaL_checkudata(L, -1, T::className));
-    if(!p) error << "Lua extraction failed, expecting " << T::className;
+    LuaMemObj<T>* p = static_cast<LuaMemObj<T>*>(luaL_checkudata(L, -1, T::className));
+    if(!p)
+        fatal(error << "Lua extraction failed, expecting " << T::className);
     lua_pop(L, 1);
-    return *p;
+    return p->ptr;
+}
+
+template<typename T>
+static inline void lua_delete(lua_State* L) {
+    trace;
+    LuaMemObj<T>* p = static_cast<LuaMemObj<T>*>(luaL_checkudata(L, -1, T::className));
+    if(!p)
+        fatal(error << "Lua extraction failed, expecting " << T::className);
+    lua_pop(L, 1);
+    trace << "asked to delete " << *p->ptr << " at " << p->ptr << ", deleting: " << p->deleteMe;
+    if(p->deleteMe)
+        delete p->ptr;
 }
 
 template<class T>
@@ -53,7 +70,8 @@ static int equality(lua_State* L) {
             T* op1 = lua_extract<T>(L);
             lua_pushboolean(L, *op1 == op2);
         }
-    } else error << "At least one argument to equality operator must be of type " << T::className;
+    } else
+        fatal(error << "At least one argument to equality operator must be of type " << T::className);
     return 1;
 }
 
@@ -74,8 +92,9 @@ static void register_additional_metas(lua_State*, int) {}
 
 struct LuaTable {};
 
-struct LuaRegistration {
-    LuaRegistration(lua_State* L, Computer* computer) : L(L), computer(computer) {}
+template<class User>
+struct Lupha {
+    Lupha(lua_State* L, User* user) : L(L), user(user) {}
 
     inline void do_add_item(int num) {
         lua_pushnumber(L, num);
@@ -89,17 +108,18 @@ struct LuaRegistration {
         lua_pushstring(L, literal);
     }
 
+    static int call_back_user(lua_State* L) {
+        User* u = static_cast<User*>(lua_touserdata(L, lua_upvalueindex(1)));
+        void (*f)(lua_State*, User*) = (void (*)(lua_State*, User*)) (lua_touserdata(L, lua_upvalueindex(2)));
+        (*f)(L, u);
+        return 1;
+    }
 
-    inline void do_add_item(void (*fn)(lua_State* L, Computer*)) {
+    inline void do_add_item(void (*fn)(lua_State* L, User* user)) {
         trace;
-        lua_pushlightuserdata(L, computer);
+        lua_pushlightuserdata(L, user);
         lua_pushlightuserdata(L, (void*)fn);
-        lua_pushcclosure(L, [](lua_State* L) -> int {
-            Computer* c = static_cast<Computer*>(lua_touserdata(L, lua_upvalueindex(1)));
-            decltype(fn) f = (decltype(fn))(lua_touserdata(L, lua_upvalueindex(2)));
-            (*f)(L, c);
-            return 1;
-        }, 2);
+        lua_pushcclosure(L, &call_back_user, 2);
     }
 
     inline void add_item(int) const {}
@@ -147,7 +167,7 @@ struct LuaRegistration {
         lua_settable(L, root+1);
 
         lua_pushliteral(L, "__lt");
-        lua_pushlightuserdata(L, computer);
+        lua_pushlightuserdata(L, user);
         lua_pushcclosure(L, &lt<T>, 1);
         lua_settable(L, root+1);
 
@@ -165,23 +185,10 @@ struct LuaRegistration {
     }
 
     lua_State* L;
-    Computer* computer;
+    User* user;
 };
 
-void callLua(lua_State* L, const char* funcname, int nargs, fnvoid argPusher, int nret, fnvoid returnHandler) {
-    trace;
-    lua_getglobal(L, "Player");
-    lua_getfield(L, lua_gettop(L), funcname);
-    if(lua_isfunction(L, -1)) {
-        lua_getfield(L, -2, "_me");
-        argPusher();
-        if(lua_pcall(L, nargs+1, nret, 0) != 0)
-            error << "Runtime error in " << funcname << ": " << luaL_checklstring(L, -1, 0);
-    } else
-        error << "Could not find function " << funcname;
-    returnHandler();
-    lua_pop(L, 1);
-}
+void callLua(lua_State* L, const char* funcname, int nargs, fnvoid argPusher, int nret, fnvoid returnHandler);
 
 inline void callLua(lua_State* L, const char* funcname, int nargs, fnvoid argPusher) {
     trace;
@@ -199,39 +206,40 @@ inline void pushList(lua_State* L, int numItems, fnint valuePusher) {
     int table = lua_gettop(L);
     for(int i = 0; i < numItems; ++i) {
         lua_pushnumber(L, i+1);
+        trace;
         valuePusher(i);
-        if(lua_gettop(L) != table + 2) error << "You screwed up the stack";
+        trace;
+        //info << lua_gettop(L);
+        //if(lua_gettop(L) != table + 2)
+        //    fatal(error << "You screwed up the stack");
         lua_settable(L, table);
+        trace;
     }
 }
 
 template<typename T>
 inline void pushClass(lua_State* L, T& cls) {
     trace;
-    T** p = (T**)lua_newuserdata(L, sizeof(T*));
-    *p = &cls;
+    LuaMemObj<T>* p = (LuaMemObj<T>*)lua_newuserdata(L, sizeof(LuaMemObj<T>));
+    p->deleteMe = false;
+    p->ptr = &cls;
+    trace;
     luaL_getmetatable(L, T::className);
+    trace;
     lua_setmetatable(L, -2);
+    trace;
 }
+
 
 template<typename T>
 inline void pushNewClass(lua_State* L, T cls) {
     trace;
-    T** p = (T**)lua_newuserdata(L, sizeof(T*));
-    *p = new T(cls);
-    trace << "making new " << T::className << ": " << cls << " at " << *p;
+    LuaMemObj<T>* p = (LuaMemObj<T>*)lua_newuserdata(L, sizeof(LuaMemObj<T>));
+    p->deleteMe = true;
+    p->ptr = new T(cls);
+    trace << "making new " << T::className << ": " << cls << " at " << p->ptr;
     luaL_getmetatable(L, T::className);
     lua_setmetatable(L, -2);
-}
-
-template<typename T>
-inline void pushKeyValue(lua_State* L, const char* key, T valuePusher) {
-    trace;
-    int root = lua_gettop(L);
-    lua_pushstring(L, key);
-    valuePusher();
-    if(lua_gettop(L) != root + 2) error << "You screwed up the stack";
-    lua_settable(L, root);
 }
 
 

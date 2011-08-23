@@ -62,19 +62,22 @@ Contract::ExitState Contract::start() {
     emit updateBid("");
 
     FOR_ALL_PLAYERS0(handDealt);
+    FOR_ALL_PLAYERS0(offsuitPlayed.reset)
     //emit sceneUpdated();
     info << "Starting the bidding";
 
     do {
-        debug << "Next bidder is " << m_current_player->name;
+        debug << "Next bidder is " << m_current_player->name();
         Bid bid = m_current_player->yourTurnToBid(&m_bids);
         if(m_abort) return ABORT;
-        info << m_current_player->name << " bid " << bid;
+        info << m_current_player->name() << " bid " << bid;
         if(receivers(SIGNAL(animateMakeBid(Seat,Bid))) > 0) {
             emit animateMakeBid(m_current_player->pos(), bid);
             m_wait.wait(&m_mutex);
         }
+        debug;
         m_bids.bid(m_current_player, bid);
+        debug;
     } while(!m_bids.complete() && (m_current_player = m_bids.nextBidder(m_current_player)));
 
     info << "Ended bidding process";
@@ -84,74 +87,97 @@ Contract::ExitState Contract::start() {
         m_wait.wait(&m_mutex);
     }
 
-    if(m_bids.hasWinner()) {
-        const Bidding::Pair& p = m_bids.winner();
-        m_current_player = p.player;
-        m_trumps = p.bid.suit();
-        std::stringstream ss;
-        ss << p.bid << " by " << p.player->name;
-        info << "Winning bid is " << ss.str();
-        emit(updateBid(ss.str().c_str()));
-        FOR_ALL_PLAYERS2(bidWon, &m_bids, m_current_player);
+    if(!m_bids.hasWinner())
+        return NOBIDS;
 
-        for(Card* c : m_kitty)
-            emit showCard(c, true);
+    const Bidding::Pair& p = m_bids.winner();
+    Player* unlucky_player = 0;
+    int num_cards_in_trick = 4;
+    if(p.bid.type() == Bid::CLOSED_MISERE || p.bid.type() == Bid::OPEN_MISERE) {
+        // Bypass the bidder's partner, save it so we can restore it later
+        unlucky_player = p.player->next->next;
+        info << unlucky_player->name() << " will not play this round";
+        p.player->next->next = unlucky_player->next;
+        num_cards_in_trick = 3;
+        if(p.bid.type() == Bid::OPEN_MISERE) {
+            for(Card* c: p.player->hand) emit turnUpCard(c, true);
+        }
+    }
+    m_current_player = p.player;
+    m_trumps = p.bid.suit();
+    std::stringstream ss;
+    ss << p.bid << " by " << p.player->name();
+    info << "Winning bid is " << ss.str();
+    emit(updateBid(ss.str().c_str()));
+    debug;
+    FOR_ALL_PLAYERS2(bidWon, &m_bids, m_current_player);
+    debug;
+    for(Card* c : m_kitty)
+        emit showCard(c, true);
+    debug;
+    Hand discards = m_current_player->yourTurnToSelectKitty(m_kitty);
+    debug;
+    if(m_abort) return ABORT;
 
-        Hand discards = m_current_player->yourTurnToSelectKitty(m_kitty);
-        if(m_abort) return ABORT;
+    debug << m_current_player->name() << " discarded " << discards;
 
-        debug << m_current_player->name << " discarded " << discards;
+    for(Card* card : discards)
+        emit showCard(card, false);
 
-        for(Card* card : discards)
-            emit showCard(card, false);
+    while(m_tricks.size() < 10) {
+        Trick* trick = new Trick();
+        // store for posterity
+        m_tricks.push_back(trick);
 
-        while(m_tricks.size() < 10) {
-            Trick* trick = new Trick();
-            // store for posterity
-            m_tricks.push_back(trick);
+        do {
+            emit updateState(m_current_player->name() + "'s turn");
 
-            do {
-                emit updateState(m_current_player->name + "'s turn");
+            Card* c = m_current_player->yourTurnToPlay(trick);
+            if(m_abort) return ABORT;
+            emit turnUpCard(c, true);
 
-                Card* c = m_current_player->yourTurnToPlay(trick);
-                if(m_abort) return ABORT;
-                emit turnUpCard(c, true);
+            info << m_current_player->name() << " played " << *c;
 
-                info << m_current_player->name << " played " << *c;
-
-                trick->playCard(m_current_player, c);
-                if(receivers(SIGNAL(animatePlayCard(Seat,Card*,uint))) > 0) {
-                    m_current_player->reposition();
-                    emit animatePlayCard(m_current_player->pos(), c, trick->size());
-                    m_wait.wait(&m_mutex);
-                }
-
-                m_current_player = m_current_player->next;
-            } while(!trick->allPlayed());
-
-            Player* winner = trick->winner(m_trumps);
-            info << winner->name << " won the trick";
-            if(winner->pos() == EAST || winner->pos() == WEST)
-                emit(updateEastWestTricks( QString::number(++m_eastwest_tricks)));
-            else
-                emit(updateNorthSouthTricks(QString::number(++m_northsouth_tricks)));
-
-            FOR_ALL_PLAYERS2(trickWon, *trick, winner);
-
-            std::vector<Card*> discards = trick->cards();
-            if(receivers(SIGNAL(animateCollectCards(std::vector<Card*>,Seat))) > 0) {
-                emit animateCollectCards(discards, winner->pos());
+            trick->playCard(m_current_player, c);
+            // keep track of each player playing offsuit. This is a necessary evil to determine validity of playing joker in no trumps
+            if(c->suit(m_trumps) != trick->card(0)->suit(m_trumps))
+                m_current_player->offsuitPlayed.set(trick->card(0)->suit(m_trumps));
+            if(receivers(SIGNAL(animatePlayCard(Seat,Card*,uint))) > 0) {
+                m_current_player->reposition();
+                emit animatePlayCard(m_current_player->pos(), c, trick->size());
                 m_wait.wait(&m_mutex);
             }
-            for(Card* c: discards)
-                emit showCard(c, false);
 
-            m_current_player = winner;
+            m_current_player = m_current_player->next;
+        } while(trick->size() != num_cards_in_trick);
+
+        Player* winner = trick->winner(m_trumps);
+        info << winner->name() << " won the trick";
+        if(winner->pos() == EAST || winner->pos() == WEST)
+            emit(updateEastWestTricks( QString::number(++m_eastwest_tricks)));
+        else
+            emit(updateNorthSouthTricks(QString::number(++m_northsouth_tricks)));
+
+        FOR_ALL_PLAYERS2(trickWon, *trick, winner);
+
+        std::vector<Card*> discards = trick->cards();
+        if(receivers(SIGNAL(animateCollectCards(std::vector<Card*>,Seat))) > 0) {
+            emit animateCollectCards(discards, winner->pos());
+            m_wait.wait(&m_mutex);
         }
-        return SUCCESS;
-    } else {
-        return NOBIDS;
+        for(Card* c: discards)
+            emit showCard(c, false);
+
+        m_current_player = winner;
     }
+
+    if(unlucky_player) {
+        // restore the natural order of things
+        info << "Returning " << unlucky_player->name() << " to the game";
+        unlucky_player->next->next->next->next = unlucky_player;
+    }
+
+    return SUCCESS;
 
 }
 
@@ -173,10 +199,20 @@ void Contract::reposition() {
         }
 }
 
-bool Contract::successful() const {
-    trace;
+int Contract::teamScoreResult(Player* player) const {
     const Bidding::Pair& p = bidWinner();
-    return (tricksWon(p.player) + tricksWon(p.player->next->next)) >= p.bid.tricks();
+    Player* partner = player->next->next;
+    if(p.bid.type() == Bid::CLOSED_MISERE || p.bid.type() == Bid::OPEN_MISERE) {
+        if(p.player == player || p.player == partner)
+            return tricksWon(player) + tricksWon(partner) == 0 ? p.bid.worth() : -p.bid.worth();
+        else
+            return 0;
+    } else {
+        if(p.player == player || p.player == partner)
+            return tricksWon(player) + tricksWon(partner) >= p.bid.tricks() ? p.bid.worth() : -p.bid.worth();
+        else
+            return 10 * (tricksWon(player) + tricksWon(partner));
+    }
 }
 
 int Contract::tricksWon(const Player* player) const {

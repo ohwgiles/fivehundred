@@ -31,7 +31,7 @@ public:
     static const char className[];
 
     // Possible values of Suit
-    enum SuitEnum { SPADES=0, DIAMONDS, CLUBS, HEARTS, NONE };
+    enum SuitEnum { NONE=0, SPADES, DIAMONDS, CLUBS, HEARTS };
 
     Suit(SuitEnum suit = NONE) : m_suitenum(suit) {}
 
@@ -46,6 +46,10 @@ public:
     }
     bool operator!=(SuitEnum suit) const {
         return !operator==(suit);
+    }
+
+    int toInt() const {
+        return int(m_suitenum);
     }
 
     //! Returns the opposite suit (e.g to find bowers)

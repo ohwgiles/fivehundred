@@ -24,6 +24,7 @@
 #include "deck.hpp"
 #include "game.hpp"
 #include "computer.hpp"
+#include "test.hpp"
 #include "log.hpp"
 #include "os.hpp"
 #include <iostream>
@@ -69,14 +70,13 @@ int main(int argc, char *argv[])
     args["--non-interactive"] = Arg("-n","Run without a GUI");
     args["--open-hand"] = Arg("-o","Computers play open hand");
     args["--loglevel"] = Arg("-l","logging level (TRACE, DEBUG, USER, INFO, ERROR)",1);
-    args["--south-name"] = Arg("","Name of player at South",1);
-    args["--east-name"] = Arg("","Name of player at East",1);
-    args["--north-name"] = Arg("","Name of player at North",1);
-    args["--west-name"] = Arg("","Name of player at West",1);
-    args["--south-ai"] = Arg("", "Path to Lua script to use for South AI",1);
-    args["--east-ai"] = Arg("", "Path to Lua script to use for East AI",1);
-    args["--north-ai"] = Arg("", "Path to Lua script to use for North AI",1);
-    args["--west-ai"] = Arg("", "Path to Lua script to use for West AI",1);
+    args["--generate-hand"] = Arg("-g", "Generate a random hand");
+    args["--test"] = Arg("-t", "<path/to/AI.lua> <path/to/test.lua> : tests an AI standalone", 2);
+
+    args["--south"] = Arg("", "Path to Lua script to use for South AI",1);
+    args["--east"] = Arg("", "Path to Lua script to use for East AI",1);
+    args["--north"] = Arg("", "Path to Lua script to use for North AI",1);
+    args["--west"] = Arg("", "Path to Lua script to use for West AI",1);
 
     QStringList arglist = a.arguments();
     for(int i=1; i<arglist.length(); ++i) {
@@ -111,16 +111,23 @@ int main(int argc, char *argv[])
         }
     }
 
-    for(QString str : {"--south-name","--west-name","--north-name","--east-name"}) {
-        if(!args[str].supplied) {
-            QString s = str;
-            s.remove("-name");
-            s.remove("--");
-            args[str].args << s;
-        }
+    if(args["--generate-hand"].supplied) {
+        Deck deck;
+        std::vector<Card*> a,b,c,d,e;
+        deck.deal(a,b,c,d,e);
+        std::cout << a << std::endl;
+        return 0;
     }
 
-    for(QString str : {"--south-ai","--west-ai","--north-ai","--east-ai"}) {
+    if(args["--test"].supplied) {
+        info << "Launching test script " << args["--test"].args.at(1);
+        Test test(args["--test"].args.at(0), args["--test"].args.at(1));
+        test.run();
+        info << "Test over";
+        return 0;
+    }
+
+    for(QString str : {"--south","--west","--north","--east"}) {
         if(!args[str].supplied)
             args[str].args << QString(os::AI_PATH) + "Patrick.lua";
     }
@@ -135,10 +142,10 @@ int main(int argc, char *argv[])
         info << "Running in non-interactive mode";
         Deck d;
         Game g(&d);
-        g.addPlayer(new Computer(SOUTH, args["--south-name"].args.first(),  args["--south-ai"].args.first(), open_hand));
-        g.addPlayer(new Computer(WEST, args["--west-name"].args.first(), args["--west-ai"].args.first(), open_hand));
-        g.addPlayer(new Computer(NORTH, args["--north-name"].args.first(), args["--north-ai"].args.first(), open_hand));
-        g.addPlayer(new Computer(EAST, args["--east-name"].args.first(), args["--east-ai"].args.first(), open_hand));
+        g.addPlayer(new Computer(SOUTH, "Player_South",  args["--south"].args.first(), open_hand));
+        g.addPlayer(new Computer(WEST, "Player_West", args["--west"].args.first(), open_hand));
+        g.addPlayer(new Computer(NORTH, "Player_North", args["--north"].args.first(), open_hand));
+        g.addPlayer(new Computer(EAST, "Player_East", args["--east"].args.first(), open_hand));
         g.run();
 
         info << "Exiting...";

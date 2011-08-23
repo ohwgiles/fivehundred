@@ -22,10 +22,10 @@
 #include <vector>
 #include "suit.hpp"
 #include "seat.hpp"
+#include "card.hpp"
 
 // Forward Declarations
 class Player;
-class Card;
 
 /*!
   \class Trick
@@ -47,8 +47,7 @@ public:
     void playCard(Player* player, Card* card); //!< Adds a player, card pair to the trick
     Player* winner(Suit trumps) const; //!< Returns the winner of a trick given a trump suit
 
-    bool allPlayed() const { return m_num_cards == 4; } //!< True if four players have played
-    int size() const { return m_num_cards; } //!< Returns the number of cards played in this trick
+    int size() const { return m_plays.size(); } //!< Returns the number of cards played in this trick
 
     Player* player(int index) const; //!< Returns the player at the given index in the trick
     Card* card(int index) const; //!< Returns the card at the given index in the trick
@@ -65,16 +64,21 @@ public:
              std::max, or from a larger set using std::max_element
     */
     struct Comparator {
-        bool operator()(const Card* lhs, const Card* rhs) const;
+        Comparator(Suit trumps, Suit lead, bool noSuitJokerHigh = true) :
+            trumps(trumps), lead(lead), noSuitJokerHigh(noSuitJokerHigh) {}
+        bool operator()(const SimpleCard& lhs, const SimpleCard& rhs) const;
+        bool operator()(const SimpleCard* lhs, const SimpleCard* rhs) const {
+            return this->operator ()(*lhs, *rhs);
+        }
         bool operator()(const Item& lhs, const Item& rhs) const {
             return this->operator ()(lhs.card, rhs.card);
         }
         Suit trumps;
         Suit lead;
+        bool noSuitJokerHigh;
     };
 
 protected:
-    int m_num_cards;
     std::vector<Item> m_plays;
 };
 

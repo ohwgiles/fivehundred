@@ -57,7 +57,7 @@ public:
     virtual void handDealt() = 0; //!< Called when the player's hand has been populated
     virtual Bid yourTurnToBid(const Bidding* bidlist) = 0;
     virtual void bidWon(const Bidding* bidlist, const Player* winner) = 0;
-    virtual Hand yourTurnToSelectKitty(const Hand& kitty) = 0;
+    virtual Hand yourTurnToSelectKitty(Hand& kitty) = 0;
     virtual Card* yourTurnToPlay(const Trick*) = 0;
     virtual void trickWon(const Trick& trick, const Player* winner) = 0;
 
@@ -65,10 +65,20 @@ public:
 
     Seat pos() const { return m_pos; }
 
-    const QString name;
     Player* next; //!< Visitor-pattern linked list behaviour
 
     void reposition(); //!< GUI-only, player repositions his cards
+
+    virtual QString name() const { return m_name; }
+    virtual void setName(QString name) { m_name = name; }
+
+    struct {
+        void set(Suit suit) { data |= (1 << suit.toInt()); }
+        void reset() { data = 0; }
+        bool has(Suit suit) { return (data & (1 << suit.toInt())); }
+    private:
+        int data;
+    } offsuitPlayed;
 
 signals:
     void kittyChosen(const Hand&);
@@ -77,11 +87,14 @@ signals:
     void turnUpCard(Card* card, bool faceUp);
 
 protected:
+    QString m_name;
     //! Contains logic to determine whether the player is allowed to play, e.g. short suited
     bool cardValid(const Trick* trick, Suit trumps, Card& card);
     //! Set the positional offset of each card in the player's hand
     void layoutHand();
     Seat m_pos;
+
+    int m_suits_played_offsuit;
 };
 
 

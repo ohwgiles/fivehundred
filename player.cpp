@@ -28,8 +28,8 @@ const char Player::className[] = "Player";
 
 Player::Player(Seat pos, const QString& name) :
     QObject(),
-    name(name),
     next(0),
+    m_name(name),
     m_pos(pos)
 {
     trace;
@@ -37,6 +37,16 @@ Player::Player(Seat pos, const QString& name) :
 
 bool Player::cardValid(const Trick* trick, Suit trumps, Card& card) {
     trace;
+
+    if(card.value() == Card::JOKER) {
+        if(card.suit(trumps) == Suit::NONE)
+            info << "Warning: the joker is being played as an off suit card";
+        else if(offsuitPlayed.has(card.suit(trumps))) {
+            debug << "Invalid to play joker of this suit as you've already played off suit";
+            return false;
+        }
+    }
+
     if (trick->size() == 0) {
         debug << "This is the first card of the trick";
         return true; // No restrictions on the first card played
@@ -45,14 +55,14 @@ bool Player::cardValid(const Trick* trick, Suit trumps, Card& card) {
     Card* leadCard = trick->card(0);
 
     if (leadCard->suit(trumps) == card.suit(trumps)) {
-        debug << name << " followed suit";
+        debug << name() << " followed suit";
         return true;
     }
 
     // At this point they have not played what was lead, check to ensure they are short suited.
     for(const Card* c: hand) {
         if (c->suit(trumps) == leadCard->suit(trumps)) {
-            debug << name << " tried to play off suit but not short suited";
+            debug << name() << " tried to play off suit but not short suited, has " << *c << ", trumps is " << trumps;
             return false; // They are not short suited, isTrump here handles the right / left bower
         }
     }
@@ -92,6 +102,6 @@ std::istream& operator>>(std::istream& s, Player& ) {
 
 std::ostream& operator<<(std::ostream& s, const Player& player) {
     trace;
-    s << "Player \"" << player.name << "\"";
+    s << "Player \"" << player.name() << "\"";
     return s;
 }

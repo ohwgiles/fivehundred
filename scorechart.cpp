@@ -32,8 +32,8 @@ ScoreChart::ScoreChart(Game* g, QWidget *parent) :
     ui->setupUi(this);
     ui->tableWidget->setRowCount(g->m_contracts.size());
     QStringList l;
-    l << (g->m_players[0]->name + "/" + g->m_players[2]->name);
-    l << (g->m_players[1]->name + "/" + g->m_players[3]->name);
+    l << (g->m_players[0]->name() + "/" + g->m_players[2]->name());
+    l << (g->m_players[1]->name() + "/" + g->m_players[3]->name());
     ui->tableWidget->setHorizontalHeaderLabels(l);
     int score_sum[2] = {0,0};
     for(unsigned i=0; i<g->m_contracts.size(); ++i) {
@@ -41,7 +41,7 @@ ScoreChart::ScoreChart(Game* g, QWidget *parent) :
         score_sum[0] += g->m_scores.at(i).first;
         score_sum[1] += g->m_scores.at(i).second;
         std::stringstream ss;
-        ss << c->bidWinner().bid << " by " << c->bidWinner().player->name;
+        ss << c->bidWinner().bid << " by " << c->bidWinner().player->name();
         ui->tableWidget->setItem(i, 0, new QTableWidgetItem(QString::number(score_sum[0])));
         ui->tableWidget->setItem(i, 1, new QTableWidgetItem(QString::number(score_sum[1])));
         ui->tableWidget->item(i,0)->setToolTip(ss.str().c_str());

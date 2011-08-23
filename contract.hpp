@@ -52,17 +52,13 @@ public:
     //! Return the Player, Bid pair which won the bid process
     const Bidding::Pair& bidWinner() const { return m_bids.winner(); }
 
-    //! Whether or not the winning bidder achieved his bid
-    bool successful() const;
-
-    //! Return the number of tricks won by the given player
-    int tricksWon(const Player* player) const;
-
     void abort();
+
     std::vector<Card*> m_kitty;
 
     void reposition();
 
+    int teamScoreResult(Player* player) const;
 signals:
     void showCard(Card* card, bool en);
     void placeCard(Card* card, Seat orientation, unsigned stackOrder);
@@ -81,6 +77,9 @@ protected slots:
     void wake(); //!< Asynchronous wake from from mutex
 
 protected:
+    //! Return the number of tricks won by the given player
+    int tricksWon(const Player* player) const;
+
     bool m_abort;
     std::vector<Trick*> m_tricks;
     Suit m_trumps;

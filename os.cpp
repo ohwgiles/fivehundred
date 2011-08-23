@@ -19,6 +19,7 @@
     along with Five Hundred.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <cstdlib>
+#include <iostream>
 
 #if defined(__linux) 
     #include <sys/stat.h>
@@ -101,6 +102,17 @@ void os::setStdoutColor(unsigned colorcode) {
     }
 }
 #endif
+
+void os::interrogate(const char* message) {
+#if defined(__linux) || defined(__APPLE__)
+    if(isatty(0))
+#elif defined(_WIN32)
+    if(_isatty(0))
+#endif
+        std::cout << message;
+    else
+        debug << message;
+}
 
 const char* os::getUserName() {
 #if defined(_WIN32)

@@ -23,6 +23,8 @@
 #include "trick.hpp"
 #include "bidding.hpp"
 #include <algorithm>
+#include "jokersuitdialog.hpp"
+#include <QMessageBox>
 #include "log.hpp"
 
 Human::Human(Seat pos, const QString& name) :
@@ -75,7 +77,7 @@ void Human::sortHand(Suit trumps) {
     std::sort(hand.begin(), hand.end(), sorter);
 }
 
-Hand Human::yourTurnToSelectKitty(const Hand& kitty) {
+Hand Human::yourTurnToSelectKitty(Hand& kitty) {
     debug;
     m_kitty_discards.clear();
 
@@ -171,6 +173,26 @@ void Human::kittyButtonClicked() {
 
 void Human::cardTriedToPlay(Card& card) {
     trace;
+    if(m_trumps == Suit::NONE && card.value() == Card::JOKER) {
+        if(m_trick->size() == 0) {
+            JokerSuitDialog jd(this);
+            if(jd.exec() == QDialog::Rejected)
+                return;
+            card.setJokerSuit(jd.chosenSuit());
+        } else {
+            if(offsuitPlayed.has(m_trick->card(0)->suit(m_trumps))) {
+                std::stringstream q;
+                q << "You've already played off suit on " << m_trick->card(0)->suit(m_trumps) <<
+                            ". If you play the joker it will be as an off-suit card and hence of no value. Are you sure?";
+                if(QMessageBox::question(0, "Joker", QString::fromStdString(q.str()), QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
+                    debug << "Bailing out of playing joker as offsuit";
+                    return;
+                }
+                card.setJokerSuit(Suit::NONE);
+            } else
+                card.setJokerSuit(m_trick->card(0)->suit(m_trumps));
+        }
+    }
     debug << "I tried to play " << card;
     if(cardValid(m_trick, m_trumps, card)) {
         for(Hand::iterator c = hand.begin(); c != hand.end(); ++c) {

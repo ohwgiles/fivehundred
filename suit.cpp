@@ -38,8 +38,7 @@ std::ostream& operator<<(std::ostream& s, const Suit& suit) {
     case Suit::HEARTS:
         s << "Hearts";
         break;
-    case Suit::NONE:
-        s << "No Trumps";
+    default:
         break;
     }
     return s;
@@ -50,6 +49,8 @@ std::istream& operator>>(std::istream& s, Suit& suit) {
     trace;
     std::string str;
     s >> str;
+    if(*str.rbegin() == ',')
+        str.erase(str.end()-1);
     if(str == "Spades")
         suit = Suit(Suit::SPADES);
     else if(str == "Clubs")
@@ -58,12 +59,7 @@ std::istream& operator>>(std::istream& s, Suit& suit) {
         suit = Suit(Suit::DIAMONDS);
     else if(str == "Hearts")
         suit = Suit(Suit::HEARTS);
-    else if(str == "No") {
-        std::string check;
-        s >> check;
-        if(check == "Trumps") suit = Suit(Suit::NONE);
-        else s.setstate(s.badbit);
-    } else
+    else
         s.setstate(std::ios_base::failbit);
     return s;
 }

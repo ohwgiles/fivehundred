@@ -25,6 +25,7 @@
 
 void Bidding::bid(Player* player, Bid bid) {
     trace;
+    debug << player->name() << " wanted " << bid;
     if(bid == Bid::PASS)
         m_has_passed[player] = true;
     // If it was the maximum bid, everyone else automatically passes
@@ -60,9 +61,10 @@ bool Bidding::complete() const {
     trace;
     typedef std::pair<const Player*, bool> PlayerBool;
     debug << "haswinner: " << hasWinner();
-    if(hasWinner())
+    if(hasWinner()) {
+        debug << "haswinner returned true";
         return std::count_if(m_has_passed.begin(), m_has_passed.end(), [](const PlayerBool& p){ return p.second; } ) == 4;
-    else
+    } else
         return m_bids.size() == 4;
 }
 
@@ -86,6 +88,9 @@ const Bidding::Pair& Bidding::winner() const {
 
 Player* Bidding::nextBidder(Player* current) {
     trace;
+    debug;
+    if(std::count_if(m_has_passed.begin(), m_has_passed.end(), [](const std::pair<const Player*, bool>& p){ return p.second; } ) == 4)
+        fatal(error<<"no next bidder, everyone has passed!");
     Player* next = current;
     do { next = next->next; } while(m_has_passed[next] == true);
     return next;

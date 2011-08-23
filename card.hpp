@@ -19,7 +19,7 @@
     You should have received a copy of the GNU General Public License
     along with Five Hundred.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "suit.hpp"
+#include "simplecard.hpp"
 #include "seat.hpp"
 #include <QObject>
 #include <QGraphicsPixmapItem>
@@ -27,7 +27,6 @@
 
 // Forward Declarations
 class QGraphicsSceneMouseEvent;
-class Player;
 
 /*!
   \class Card
@@ -35,15 +34,11 @@ class Player;
 
   Complex object that knows too much about what's going on outside its world
 */
-class Card : public QObject, public QGraphicsPixmapItem {
+class Card : public QObject, public SimpleCard, public QGraphicsPixmapItem {
     Q_OBJECT
     Q_PROPERTY(QPointF position READ pos WRITE setPos)
     Q_PROPERTY(qreal opacity READ opacity WRITE setOpacity)
 public:
-    //! Every Lua-accessible object must have a string identifier
-    static const char className[];
-
-    enum Value { TWO=2, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE, LEFT_BOWER, RIGHT_BOWER, JOKER };
     enum Location { HAND, TRICK, HIDDEN };
 
     static const unsigned H_OFFSET = 20;
@@ -53,19 +48,20 @@ public:
     static const unsigned RAISE = 20;
     static const unsigned WON_OFFSET = 160;
 
-    Card();
-    Card(Suit suit, Value val);
-    Card& operator=(const Card& copy);
-    bool operator==(const Card& other) const;
+    Card(Suit suit = Suit::NONE, Value val = INVALID);
+    Card(const Card& other);
+    Card& operator=(const Card& copy) { return (Card&)SimpleCard::operator=(copy); }
+
+    bool operator==(const Card& other) const { return SimpleCard::operator==(other); }
+    bool operator==(const Card* other) const { return SimpleCard::operator==(other); }
+    bool operator==(const SimpleCard& other) const { return SimpleCard::operator==(other); }
+    bool operator==(const SimpleCard* other) const { return SimpleCard::operator==(other); }
+
     virtual ~Card();
 
     void setFaceUp(bool setFaceUp=true);
     void raise(bool v=true);
     bool raised() const;
-
-    bool isTrump(Suit trumps) const;
-    Suit suit(Suit trump = Suit::NONE) const;
-    Value value(Suit trump = Suit::NONE) const;
 
     static void createBackPixmap();
 
@@ -75,8 +71,6 @@ signals:
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event);
 
-    Suit m_suit;
-    Value m_value;
     QPixmap m_pixmap;
     static QPixmap* back_pixmap;
     bool m_face_up;
@@ -84,9 +78,7 @@ protected:
 
     static QString findImage(Suit suit, int value);
 
-    friend std::ostream& operator<<(std::ostream& s, const Card& c);
 };
 
-std::istream& operator>>(std::istream& s, Card& c);
 
 #endif // CARD_H

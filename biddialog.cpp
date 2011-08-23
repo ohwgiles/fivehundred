@@ -93,8 +93,7 @@ void BidDialog::bidSelected() {
     ui->buttonBid->setEnabled(true);
 }
 
-void BidDialog::dialog_rejected()
-{
+void BidDialog::dialog_rejected() {
     emit(bidMade(m_player, Bid(Bid::PASS)));
     debug;
 }
