@@ -58,7 +58,7 @@ elseif(APPLE)
 	set(EXTRA_LIBS "z")
 	set_target_properties(fivehundred PROPERTIES MACOSX_BUNDLE TRUE LINK_FLAGS "-framework CoreFoundation -framework Cocoa -framework Carbon" OUTPUT_NAME "Five Hundred")
 	include("package/osx.cmake")
-elseif(LINUX)
+else() # Assume linux, no if(LINUX)
 	include("package/linux.cmake")
 endif()
 
