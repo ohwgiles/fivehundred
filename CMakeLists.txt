@@ -77,7 +77,7 @@ target_link_libraries(
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
 	${EXTRA_LIBS}
-	${LUA_LIBRARIES}
+	${LUA_LIBRARY}
 )
 
 # Add tests
