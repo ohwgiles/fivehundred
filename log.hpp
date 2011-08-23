@@ -89,6 +89,7 @@ std::ostream& operator<<(std::ostream& s, const std::vector<T*>& v) {
 
 //! Converts a Log object into an exception and throws it
 //void fatal(const std::basic_ostream<char>&) __attribute__((noreturn));
+#include <cstdlib>
 #define fatal(var) { var; exit(1); }
 
 
