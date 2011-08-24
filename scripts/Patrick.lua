@@ -55,6 +55,7 @@ function handDealt()
             PREFERRED_SUIT_STRENGTH = strength
         end
     end
+    VALIDSUITS = { Spades=true,Clubs=true,Diamonds=true,Hearts=true }
 end
 
 function yourTurnToBid(bids)
@@ -87,10 +88,10 @@ end
 function bidWon(bids, winner)
 	for _,p in ipairs(bids) do
                 if p.player == winner and not(p.bid == Bid("Pass")) then
-                        print("Setting trumps to "..p.bid:suit())
                         TRUMPS = p.bid:suit()
 		end
 	end
+        print("Set trumps to "..TRUMPS)
 end
 
 function yourTurnToSelectKitty(kitty)
@@ -134,12 +135,14 @@ function haveSuit(suit)
 end
 
 function yourTurnToPlay(trick)
-    -- in no trumps, I like to play the joker as a heart
-    if TRUMPS == "" then for i, c in next, HAND do
-        if c == Card(Card.JOKER) then HAND[i] = Card(Card.JOKER, "Hearts") end
-    end end
     print("Cards in trick: "..#trick)
     if #trick == 0 then
+        -- If no trumps and I have the joker, play it as the first suit I haven't thrown out on
+        if TRUMPS == "" then for i, c in next, HAND do
+            if c == Card(Card.JOKER) then
+                for s,v in next,VALIDSUITS do if v then return Card(Card.JOKER, s) end end
+            end
+        end end
         -- I'm the first player, play anything
         return HAND[math.random(#HAND)]
     elseif #trick >= 2 then
@@ -155,6 +158,7 @@ function yourTurnToPlay(trick)
 
         lead_suit = trick[1].card:suit()
         if not haveSuit(lead_suit) then
+                        VALIDSUITS[lead_suit] = false
 			lead_suit = nil
 		end
 		print(lead_suit)
@@ -172,6 +176,7 @@ function yourTurnToPlay(trick)
         if haveSuit(lead_suit) then
                         return highestCard(lead_suit)
 		else
+                VALIDSUITS[lead_suit] = false
                         if haveSuit(TRUMPS) then
                         print("lowest card trumps:",lowestCard(TRUMPS))
                                 return lowestCard(TRUMPS)

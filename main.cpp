@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
 
     for(QString str : {"--south","--west","--north","--east"}) {
         if(!args[str].supplied)
-            args[str].args << QString(os::AI_PATH) + "Patrick.lua";
+            args[str].args << QString(os::AI_PATH) + "Ariadne.lua";
     }
 
     bool open_hand = args["--open-hand"].supplied;

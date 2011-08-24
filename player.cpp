@@ -39,9 +39,12 @@ bool Player::cardValid(const Trick* trick, Suit trumps, Card& card) {
     trace;
 
     if(card.value() == Card::JOKER) {
-        if(card.suit(trumps) == Suit::NONE)
-            info << "Warning: the joker is being played as an off suit card";
-        else if(offsuitPlayed.has(card.suit(trumps))) {
+        if(card.suit(trumps) == Suit::NONE) {
+            if(trick->size() == 0) {
+                fatal(error << "Cannot lead the joker as no-suit");
+            } else
+                info << "Warning: the joker is being played as an off suit card";
+        } else if(offsuitPlayed.has(card.suit(trumps))) {
             debug << "Invalid to play joker of this suit as you've already played off suit";
             return false;
         }

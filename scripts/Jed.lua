@@ -83,6 +83,7 @@ handDealt = function()
         str_hand = str_hand..tostring(c)..", "
     end
     print(str_hand)
+    validSuits = { Spades=true,Clubs=true,Diamonds=true,Hearts=true }
 end
 
 yourTurnToBid = function(bids)
@@ -128,7 +129,8 @@ yourTurnToPlay = function(trick)
         -- I'm the first player, play anything
         local c = HAND[math.random(#HAND)]
         if c:value() == Card.JOKER then
-            return Card(Card.JOKER, "Spades") -- always lead the joker as a spade
+            -- always lead the joker as the first suit I haven't already thrown out on
+            for s,v in next,validSuits do if v then return Card(Card.JOKER, s) end end
         else
             return c
         end
@@ -139,6 +141,7 @@ yourTurnToPlay = function(trick)
             if c:suit() == lead_suit then return c; end
         end
         -- short suited, return anything
+        validSuits[lead_suit] = false
         return HAND[math.random(#HAND)]
     end
 end

@@ -44,8 +44,6 @@ Card* Trick::card(int index) const {
 
 void Trick::playCard(Player *player, Card *card) {
     trace;
-    if(size() == 0 && card->suit() == Suit::NONE)
-        fatal(error<<"Lead card must have a suit. If it is the joker, set its suit before playing.");
     // Append pair to list
     m_plays.push_back( { player, card } );
 }

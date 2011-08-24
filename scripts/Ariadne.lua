@@ -235,6 +235,7 @@ function bidWon(bids, winner)
     SHORT_SUITED[PARTNER] = {}
     SHORT_SUITED[LEFT] = {}
     SHORT_SUITED[RIGHT] = {}
+    SHORT_SUITED[ME] = {}
     CARDS_PLAYED = {}
 end
 
@@ -425,6 +426,9 @@ function leadCardNoTrumps()
     print("We have the joker?")
     if table.contains(HAND, Card(Card.JOKER)) then
         -- find suit that has the biggest card
+        if #HAND == 1 then for _,s in next,SUITS do
+            if not SHORT_SUITED[ME][s] then return Card(Card.JOKER, s) end
+        end end
         table.sort(HAND)
         local suitWithBiggestCard = HAND[#HAND - 1]:suit()
         -- play joker as that suit
@@ -502,7 +506,7 @@ function updatePlayedCards(trick)
     print(lead_suit)
     for _,t in next,trick do
         setCardPlayed(t.card)
-        if t.card:suit() ~= lead_suit and t.player ~= ME then
+        if t.card:suit() ~= lead_suit then
             print("Player",t.player,"is short in",lead_suit)
             SHORT_SUITED[t.player][lead_suit] = true
         end
@@ -562,8 +566,8 @@ function playCardNormal(trick)
 
     print("Enemy winning, attempt to beat")
     local eachSuit = splitHandIntoSuits()
-    -- if no trumps, consider the joker to be one of this suit rather than of none
-    if not playingTrumps() and table.contains(HAND, Card(Card.JOKER)) then
+    -- if no trumps, consider the joker to be one of this suit rather than of none, but only if we haven't played off suit already
+    if not playingTrumps() and table.contains(HAND, Card(Card.JOKER)) and not SHORT_SUITED[ME][lead_suit] then
         print("Setting the joker as a", lead_suit)
         table.insert(eachSuit[lead_suit], Card(Card.JOKER, lead_suit))
     end
