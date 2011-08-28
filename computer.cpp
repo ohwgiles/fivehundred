@@ -74,6 +74,8 @@ void Computer::bidWon(const Bidding* bidlist, const Player* winner) {
 
 void Computer::handDealt() {
     debug;
+	m_trumps = Suit::NONE;
+	m_lead = Suit::NONE;
     for(Card* c: hand)
         //c->setFaceUp(m_play_open_hand);
         emit turnUpCard(c, m_play_open_hand);
