@@ -4,7 +4,7 @@ project(fivehundred)
 # Package description and copyright
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Five Hundred is a card game")
 set(CPACK_PACKAGE_VENDOR "Oliver Giles")
-set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/DESCRIPTION")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
 
 # Grab required libraries
@@ -51,6 +51,7 @@ add_executable(fivehundred
 	${UI_MOCS} ${UI_OUTPUT} ${GFX_FILES} ${AI_FILES})
 
 # Installing and packaging
+set(CPACK_STRIP_FILES ON)
 if(WIN32)
 	set(EXTRA_LIBS "QtCore;QtGui;imm32;wsock32")
 	include("package/win32.cmake")
@@ -79,6 +80,7 @@ target_link_libraries(
 	${EXTRA_LIBS}
 	${LUA_LIBRARY}
 )
+set(CPACK_PACKAGE_EXECUTABLES "fivehundred;Five Hundred")
 
 # Add tests
 find_package(GTest)

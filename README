@@ -1,0 +1,54 @@
+Overview
+========
+
+Five Hundred is a card game for four players similar to Euchre or Bridge. It is especially popular in Australia and New Zealand.
+
+This cross-platform Qt implementation has both an interactive mode and a non-interactive scriptable mode. Computer players can be implemented in Lua script and pitted against one another.
+
+Five Hundred is developed by Oliver Giles and can be downloaded from its website at <http://fivehundred.sf.net>
+
+
+Installation
+============
+
+Ubuntu/Debian GNU/Linux:
+  Download the appropriate .deb file for your architecture. Use your graphical client to install or execute from the command line:
+  sudo dpkg -U /path/to/downloaded/fivehundred.deb
+  sudo apt-get install -f
+
+Microsoft Windows:
+  Download the installer executable and launch it
+
+Mac OS X:
+  Download the disk image and mount it. Drag the Five Hundred app file to your Applications folder
+
+
+Compiling from source
+=====================
+
+You will need g++ >= 4.6 or another compiler with C++0x support. You will need headers and libraries for Lua >= 5.1 and Qt >= 4.6.
+
+$ mkdir -p fivehundred/build
+$ svn co https://fivehundred.svn.sourceforge.net/svnroot/fivehundred/trunk fivehundred/trunk
+$ cd fivehundred/trunk
+  # At this point you may need to point CMake to Lua5.1 and Qt
+$ cmake ../trunk -DCMAKE_BUILD_TYPE=Release
+$ make
+
+
+Writing AI files
+================
+
+Five Hundred automatically reads all .lua files in its scripts folder. This folder can typically be found in
+  ${CMAKE_INSTALL_PREFIX}/share/fivehundred/scripts on Linux-based systems
+  %ProgramFiles%/Five Hundred/scripts on Microsoft Windows systems
+  /Applications/Five Hundred.app/Resources/scripts on Mac OS X systems
+
+Read Jed.lua for further documentation on creating AI scripts. Contact me if you're interested in releasing them in subsequent releases of Five Hundred.
+
+
+Copyright and Licensing
+=======================
+
+Five Hundred is Copyright 2011 Oliver Giles and licensed under the GNU GPL version 3
+
