@@ -60,8 +60,10 @@ elseif(APPLE)
 	set_target_properties(fivehundred PROPERTIES MACOSX_BUNDLE TRUE LINK_FLAGS "-framework CoreFoundation -framework Cocoa -framework Carbon" OUTPUT_NAME "Five Hundred")
 	include("package/osx.cmake")
 else() # Assume linux, no if(LINUX)
-	include("package/linux.cmake")
+	include("package/debian.cmake")
 endif()
+set(CPACK_PACKAGE_EXECUTABLES "fivehundred;Five Hundred")
+include(CPack)
 
 # Doxygen documentation
 find_package(Doxygen)
@@ -70,9 +72,6 @@ if(DOXYGEN_FOUND)
     add_custom_target(doc ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} COMMENT "Generating API documentation with Doxygen" VERBATIM)
 endif(DOXYGEN_FOUND)
 
-include(CPack)
-
-
 target_link_libraries(
 	fivehundred 500	
 	${QT_QTCORE_LIBRARY}
@@ -80,7 +79,6 @@ target_link_libraries(
 	${EXTRA_LIBS}
 	${LUA_LIBRARY}
 )
-set(CPACK_PACKAGE_EXECUTABLES "fivehundred;Five Hundred")
 
 # Add tests
 find_package(GTest)

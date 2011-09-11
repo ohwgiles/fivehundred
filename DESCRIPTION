@@ -1,3 +1,4 @@
-Five Hundred is a card game for four players similar to Euchre or Bridge. It is especially popular in Australia and New Zealand.
-
-This cross-platform Qt implementation has both an interactive mode and a non-interactive scriptable mode. Computer players can be implemented in Lua script and pitted against one another.
+Five Hundred is a card game for four players similar to Euchre or Bridge.
+ This cross-platform Qt implementation has both an interactive mode and a 
+ non-interactive scriptable mode. Computer players can be implemented in Lua
+ script and pitted against one another.
