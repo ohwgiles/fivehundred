@@ -28,9 +28,12 @@ const char Player::className[] = "Player";
 
 Player::Player(Seat pos, const QString& name) :
     QObject(),
+    hand(),
     next(0),
+    offsuitPlayed(),
     m_name(name),
-    m_pos(pos)
+    m_pos(pos),
+    m_suits_played_offsuit(0)
 {
     trace;
 }

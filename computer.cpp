@@ -28,6 +28,8 @@
 Computer::Computer(Seat pos, const QString& name, const QString& script, bool play_open_hand) :
         Player(pos, name),
         Scriptable(script),
+        m_current_bidlist(0),
+        m_current_trick(0),
         m_play_open_hand(play_open_hand)
 {
     trace;

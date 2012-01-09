@@ -1,10 +1,32 @@
+#ifndef LUPHA_HPP
+#define LUPHA_HPP
+/*!
+  \file lupha.hpp
+    Copyright 2011 Oliver Giles
 
-#ifndef LOOPHA_HPP
-#define LOOPHA_HPP
+    This file is part of Five Hundred.
 
+    Five Hundred is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Five Hundred is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Five Hundred.  If not, see <http://www.gnu.org/licenses/>.
+*/
 #include <functional>
 #include <lua.hpp>
 #include "log.hpp"
+
+/*!
+  \file lupha.hpp
+  This file is a convenience c++ layer for the lua api
+*/
 
 // Forward declare computer type
 struct lua_State;
@@ -76,7 +98,10 @@ static int equality(lua_State* L) {
 }
 
 template<typename T>
-static bool lua_cmp(lua_State*, const T&, const T&) { return false; }
+static bool lua_cmp(lua_State*, const T&, const T&) {
+    error << "No specialised template for type " << T::classname;
+    return false;
+}
 
 template<class T>
 static int lt(lua_State* L) {
@@ -87,8 +112,6 @@ static int lt(lua_State* L) {
 
 template<class T>
 static void register_additional_metas(lua_State*, int) {}
-
-
 
 struct LuaTable {};
 
@@ -173,10 +196,6 @@ struct Lupha {
 
         register_additional_metas<T>(L, root+1);
 
-    /*
-        lua_pushliteral(L, "__type");
-        lua_pushstring(L, T::className);
-        lua_settable(L, metatable);*/
         lua_setmetatable(L, root);
 
         add_item(root, args...);
@@ -209,9 +228,6 @@ inline void pushList(lua_State* L, int numItems, fnint valuePusher) {
         trace;
         valuePusher(i);
         trace;
-        //info << lua_gettop(L);
-        //if(lua_gettop(L) != table + 2)
-        //    fatal(error << "You screwed up the stack");
         lua_settable(L, table);
         trace;
     }

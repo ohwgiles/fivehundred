@@ -25,6 +25,10 @@
 #include <QFont>
 #include "seat.hpp"
 
+/*!
+  \class Bubble
+  \brief Graphical bubble widget displaying 'speech' from a player
+*/
 class Bubble : public QObject, public QGraphicsItem {
     Q_OBJECT
     Q_PROPERTY(qreal scale READ scale WRITE setScale)
@@ -35,6 +39,7 @@ public:
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
+    //! Offsets into the centre of the bubble pixmap
     static const int X_MID = 67;
     static const int Y_MID = 26;
 

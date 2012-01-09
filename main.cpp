@@ -122,7 +122,6 @@ int main(int argc, char *argv[])
     if(args["--test"].supplied) {
         info << "Launching test script " << args["--test"].args.at(1);
         Test test(args["--test"].args.at(0), args["--test"].args.at(1));
-        test.run();
         info << "Test over";
         return 0;
     }

@@ -60,6 +60,15 @@ Card::Card(const Card& other) :
     update();
 }
 
+Card& Card::operator=(const Card& other) {
+    m_suit = other.m_suit;
+    m_value = other.m_value;
+    m_pixmap = other.m_pixmap;
+    // decided not to copy m_raised or m_face_up
+    update();
+    return *this;
+}
+
 Card::~Card() {
 }
 

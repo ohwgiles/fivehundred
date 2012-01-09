@@ -35,6 +35,7 @@ public:
     virtual ~Computer();
     virtual void configure();
     virtual void handDealt();
+    virtual Trick::Comparator comparator() { return Trick::Comparator(m_trumps, m_lead, false); }
 
     virtual Card* yourTurnToPlay(const Trick*);
     virtual Bid yourTurnToBid(const Bidding* bidlist);

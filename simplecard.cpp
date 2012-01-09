@@ -1,4 +1,24 @@
 #include "simplecard.hpp"
+/*!
+  \file simplecard.cpp
+    Copyright 2011 Oliver Giles
+
+    This file is part of Five Hundred.
+
+    Five Hundred is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Five Hundred is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Five Hundred.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "log.hpp"
 
 const char SimpleCard::className[] = "Card";
@@ -13,14 +33,6 @@ SimpleCard::SimpleCard(Suit suit, Value val):
     if(val >= TWO && val <= JOKER) {} else
         fatal(error<<"Invalid parameters to Card ctor: " << val << "," << suit);
 }
-
-//bool SimpleCard::isTrump(Suit trumps) const {
-//    trace;
-//    if(m_value == JOKER) return true;
-//    if(m_suit == trumps) return true;
-//    if(m_value == JACK && m_suit == trumps.complementary()) return true;
-//    return false;
-//}
 
 void SimpleCard::setJokerSuit(Suit suit) {
     trace;
@@ -61,7 +73,6 @@ SimpleCard::Value SimpleCard::value(Suit trump) const {
 
 std::ostream& operator<<(std::ostream& s, const SimpleCard& c) {
     trace;
-    //s << "the ";
     if(c.m_value == SimpleCard::JOKER) {
         s << "Joker (" << c.m_suit << ")";
         return s;
@@ -82,8 +93,6 @@ std::ostream& operator<<(std::ostream& s, const SimpleCard& c) {
 std::istream& operator>>(std::istream& is, SimpleCard& c) {
     trace;
     std::string tmp;
-    //is >> tmp;
-    //if(tmp != "the") is.setstate(is.badbit);
 
     is >> tmp;
     if(*tmp.rbegin() == ',')

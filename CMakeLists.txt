@@ -21,11 +21,9 @@ qt4_wrap_ui(UI_OUTPUT biddialog.ui jokersuitdialog.ui mainwindow.ui scorechart.u
 include_directories(${QT_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR} ${LUA_INCLUDE_DIR})
 
 # Package Version
-find_package(Subversion REQUIRED)
-Subversion_WC_INFO(${CMAKE_CURRENT_SOURCE_DIR} SVN)
-set(CPACK_PACKAGE_VERSION_MAJOR "0")
-set(CPACK_PACKAGE_VERSION_MINOR "1")
-set(CPACK_PACKAGE_VERSION_PATCH "0alpha~r${SVN_WC_REVISION}")
+set(CPACK_PACKAGE_VERSION_MAJOR "1")
+set(CPACK_PACKAGE_VERSION_MINOR "0")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
 set(VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH})
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/version.h.txt" "#define VERSION \"${VERSION}\"")
 add_custom_command(OUTPUT version.h COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/version.h.txt version.h)
@@ -82,6 +80,6 @@ target_link_libraries(
 
 # Add tests
 find_package(GTest)
-if(${GTEST_FOUND})
+if(GTEST_FOUND)
     add_subdirectory(test)
 endif()

@@ -1,3 +1,5 @@
+#ifndef BIDGRID_HPP
+#define BIDGRID_HPP
 /*!
   \file bidgrid.hpp
     Copyright 2011 Oliver Giles
@@ -17,19 +19,26 @@
     You should have received a copy of the GNU General Public License
     along with Five Hundred.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef BIDGRID_HPP
-#define BIDGRID_HPP
 
 #include <QWidget>
 
+// Forward Declarations
 class Bid;
 
+/*!
+  \class BidGrid
+  \brief Graphical grid for selecting a bid
+*/
 class BidGrid : public QWidget
 {
     Q_OBJECT
 public:
     explicit BidGrid(QWidget *parent = 0);
+
+    //! Sets the currently winning bid (that must be beaten)
     void setWinningBid(const Bid& bid);
+
+    //! returns the bid selected by the user
     Bid selectedBid();
 
 protected:
@@ -44,6 +53,8 @@ protected:
     int m_selected_square;
     int m_disabled_threshold;
     QPixmap m_grid_image;
+
+    //! define the size of the grid squares
     static const uint X_OFFSET = 61;
     static const uint Y_OFFSET = 48;
     static const uint X_SIZE = 60;

@@ -10,13 +10,14 @@
 #define user
 
 
+// Specialise comparison operators (from luapha.hpp)
 template<>
 bool lua_cmp<Bid>(lua_State*, const Bid& op1, const Bid& op2) { return op1 < op2; }
 
 template<>
 bool lua_cmp<SimpleCard>(lua_State* L, const SimpleCard& op1, const SimpleCard& op2) {
     Scriptable* c = static_cast<Scriptable*>(lua_touserdata(L, lua_upvalueindex(1)));
-    Trick::Comparator comp = c->comparator();// {c->m_trumps, c->m_lead};
+    Trick::Comparator comp = c->comparator();
     return comp(&op1, &op2);
 }
 
@@ -122,7 +123,7 @@ void register_additional_metas<SimpleCard>(lua_State* L, int tbl) {
 
 static int computerLog(lua_State* L) {
     trace;
-    std::string name = (const char*)((Scriptable*)lua_touserdata(L, lua_upvalueindex(1)))->name().toLocal8Bit();
+    std::string name = static_cast<Scriptable*>(lua_touserdata(L, lua_upvalueindex(1)))->name().toLocal8Bit().constData();
     std::stringstream output;
     while(lua_gettop(L) > 0) {
         if(lua_isstring(L, 1)) {
@@ -156,10 +157,7 @@ Scriptable::Scriptable(const QString& script) :
     m_lead(Suit::NONE),
     L(0)
 {
-
-
     L = lua_open();
-
 
     luaL_openlibs(L);
 
@@ -173,22 +171,13 @@ Scriptable::Scriptable(const QString& script) :
     lua_remove(L, -2);
 
     Lupha<Scriptable> luareg(L, this);
-    /*
-    luareg.add_class<Suit>(
-                "SPADES", "Spades",
-                "CLUBS", "Clubs",
-                "DIAMONDS", "Diamonds",
-                "HEARTS", "Hearts",
-                "NONE", "No Trumps"
-                );*/
+
     luareg.add_class<Bid>(
                 "PASS", Bid::PASS,
                 "NORMAL", Bid::NORMAL,
                 "CLOSED_MISERE", Bid::CLOSED_MISERE,
                 "OPEN_MISERE", Bid::OPEN_MISERE,
                 "suit", [](lua_State* L, Scriptable*) {
-                    //lua_pushnumber(L, lua_extract<Bid>(L)->suit());
-                    //pushClass(L, lua_extract<Bid>(L)->suit());
                     std::ostringstream ss; ss << lua_extract<Bid>(L)->suit();
                     lua_pushstring(L, ss.str().c_str());
                 },
@@ -198,7 +187,7 @@ Scriptable::Scriptable(const QString& script) :
                 "tricks", [](lua_State* L, Scriptable*) {
                     lua_pushnumber(L, lua_extract<Bid>(L)->tricks());
                 }
-                );
+              );
     luareg.add_class<SimpleCard>(
                 "TWO", Card::TWO,
                 "THREE", Card::THREE,
@@ -220,19 +209,14 @@ Scriptable::Scriptable(const QString& script) :
                     lua_pushnumber(L, lua_extract<SimpleCard>(L)->suit(computer->m_trumps) == computer->m_trumps);
                 },
                 "suit", [](lua_State* L, Scriptable* computer) {
-                    //lua_pushnumber(L, lua_extract<Card>(L)->suit(computer->m_trumps));
-                    //pushNewClass(L, lua_extract<Card>(L)->suit(computer->m_trumps));
                     std::ostringstream ss;
                     ss << lua_extract<SimpleCard>(L)->suit(computer->m_trumps);
                     lua_pushstring(L, ss.str().c_str());
-
                 },
                 "value", [](lua_State* L, Scriptable* computer) {
                     lua_pushnumber(L, lua_extract<SimpleCard>(L)->value(computer->m_trumps));
                 }
-                );
-
-   // luareg.add_class<Player>();
+              );
 
     if(luaL_loadfile(L, script.toAscii()) != 0)
         fatal(error << lua_tostring(L, -1));

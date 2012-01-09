@@ -72,7 +72,8 @@ public:
     virtual QString name() const { return m_name; }
     virtual void setName(QString name) { m_name = name; }
 
-    struct {
+    struct Offsuit {
+        Offsuit() : data(0) {}
         void set(Suit suit) { data |= (1 << suit.toInt()); }
         void reset() { data = 0; }
         bool has(Suit suit) { return (data & (1 << suit.toInt())); }

@@ -50,7 +50,7 @@ public:
 
     Card(Suit suit = Suit::NONE, Value val = INVALID);
     Card(const Card& other);
-    Card& operator=(const Card& copy) { return (Card&)SimpleCard::operator=(copy); }
+    Card& operator=(const Card& copy);
 
     bool operator==(const Card& other) const { return SimpleCard::operator==(other); }
     bool operator==(const Card* other) const { return SimpleCard::operator==(other); }

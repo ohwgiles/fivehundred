@@ -1,8 +1,31 @@
 #ifndef SIMPLECARD_HPP
 #define SIMPLECARD_HPP
+/*!
+  \file simplecard.hpp
+    Copyright 2011 Oliver Giles
+
+    This file is part of Five Hundred.
+
+    Five Hundred is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Five Hundred is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Five Hundred.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "suit.hpp"
 
+/*!
+  \class SimpleCard
+  \brief A card without any UI information. Used by scripts etc.
+*/
 class SimpleCard {
 public:
     //! Every Lua-accessible object must have a string identifier

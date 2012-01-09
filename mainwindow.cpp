@@ -172,8 +172,6 @@ void MainWindow::resetUI() {
 
 void MainWindow::connectContract(Contract* contract) {
     trace;
-    //m_deck->show(true);
-    //connect(contract, SIGNAL(sceneUpdated()), this, SLOT(updateDisplay()));
     connect(contract, SIGNAL(showCard(Card*,bool)), &m_table, SLOT(showCard(Card*,bool)));
     connect(contract, SIGNAL(placeCard(Card*,Seat,uint)), &m_table, SLOT(placeCardInTrick(Card*,Seat,uint)), Qt::QueuedConnection);
     connect(contract, SIGNAL(turnUpCard(Card*,bool)), &m_table, SLOT(turnUpCard(Card*,bool)));

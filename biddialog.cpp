@@ -19,7 +19,7 @@
     along with Five Hundred.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "ui_biddialog.h"
-#include "player.hpp"
+#include "human.hpp"
 #include "bidding.hpp"
 #include <QVariant>
 #include <QMoveEvent>
@@ -52,7 +52,7 @@ void BidDialog::show(Human* player, Bidding* bids) {
     m_player = player;
     ui->buttonBid->setEnabled(false);
 
-    if(bids->hasWinner() && bids->winner().player == (Player*)player) {
+    if(bids->hasWinner() && bids->winner().player == static_cast<Player*>(player)) {
         if(QMessageBox::question(0, "You have won the bid",
             "Would you like to raise your bid? If you change suit, other players may bid again.",
             QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No) {

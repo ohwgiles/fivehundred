@@ -1,4 +1,23 @@
 #include "test.hpp"
+/*!
+  \file test.cpp
+    Copyright 2011 Oliver Giles
+
+    This file is part of Five Hundred.
+
+    Five Hundred is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Five Hundred is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Five Hundred.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include <fstream>
 
@@ -15,7 +34,7 @@
 namespace {
 
 int setTrumpSuit(lua_State* L) {
-    Test* t = (Test*) lua_touserdata(L, lua_upvalueindex(1));
+    Test* t = static_cast<Test*>(lua_touserdata(L, lua_upvalueindex(1)));
     std::stringstream ss(luaL_checkstring(L, 1));
     Suit s;
     ss >> s;
@@ -24,7 +43,7 @@ int setTrumpSuit(lua_State* L) {
 }
 
 int setLeadSuit(lua_State* L) {
-    Test* t = (Test*) lua_touserdata(L, lua_upvalueindex(1));
+    Test* t = static_cast<Test*>(lua_touserdata(L, lua_upvalueindex(1)));
     std::stringstream ss(luaL_checkstring(L, 1));
     Suit s;
     ss >> s;
@@ -157,84 +176,7 @@ Test::Test(const QString& aifile, const QString& testfile) :
     if(luaL_loadfile(L, testfile.toAscii()) != 0)
         fatal(error << lua_tostring(L, -1));
 
-    //lua_remove(L, -2);
     if(lua_pcall(L, 0, 0, 1) != 0)
         fatal(error << "Error executing Lua script:\n" << lua_tostring(L, -1));
 }
 
-Test::~Test() {
-//    delete partner;
-//    delete left;
-//    delete right;
-}
-
-void Test::run() {
-//    std::fstream fs("/home/gilesol/fivehundred/build/test.sh");
-//    os::interrogate("Enter comma-separated hand: ");
-//    for(unsigned i=0; i<10; ++i) {
-//        Card* c = new Card();
-//        fs >> *c;
-//        if(fs.bad())
-//            fatal(error<<"Could not create hand");
-//        debug << "Appending card to hand: " << *c;
-//        me->hand.push_back(c);
-//    }
-//    std::string action;
-//    while(true) {
-//        os::interrogate("Enter action (exit) or lua function to call: ");
-//        fs >> action;
-//        if(action == "exit")
-//            break;
-//        else if(action == "handDealt") {
-//            debug << "calling handDealt";
-//            me->handDealt();
-//        } else if(action == "yourTurnToBid") {
-//            std::string sub;
-//            os::interrogate("Dealer (me, left, right, partner): ");
-//            fs >> sub;
-//            Player* current;
-//            if(sub == "me") current = me; else
-//            if(sub == "left") current = left; else
-//            if(sub == "right") current = right; else
-//            if(sub == "partner") current = partner; else
-//                fatal(error << "Invalid dealer: " << sub);
-//            Bidding b;
-//            while(!b.complete()) {
-//                current = b.nextBidder(current);
-//                Bid bid;
-//                if(current == me) {
-//                    bid = current->yourTurnToBid(&b);
-//                    info << "AI bid " << bid;
-//                } else {
-//                    os::interrogate(current->name.toAscii());
-//                    os::interrogate("'s bid: ");
-//                    if((fs >> bid).bad())
-//                        fatal(error << "Invalid bid");
-
-//                }
-//                b.bid(current, bid);
-//            }
-//            if(b.hasWinner()) {
-//                me->bidWon(&b, b.winner().player);
-//            }
-//        } else if(action == "yourTurnToSelectKitty") {
-//            os::interrogate("Enter comma-separated cards in kitty");
-//            Hand h;
-//            for(unsigned i=0; i<3; ++i) {
-//                Card* c = new Card();
-//                fs >> *c;
-//                if(fs.bad())
-//                    fatal(error<<"Could not create kitty");
-//                h.push_back(c);
-//            }
-//            info << "Test script discarded " <<  me->yourTurnToSelectKitty(h);
-//        } else if(action == "yourTurnToPlay") {
-//            Trick t;
-//            me->yourTurnToPlay(&t);
-//        } else {
-//            debug << "Calling arbitrary lua function " << action;
-//            me->testCallFunc(action.c_str());
-//        }
-//    }
-
-}
