@@ -10,7 +10,6 @@ set(CPACK_NSIS_DISPLAY_NAME "Five Hundred")
 set(CPACK_NSIS_HELP_LINK "http://fivehundred.sourceforge.net")
 set(CPACK_NSIS_URL_INFO_ABOUT "http://fivehundred.sourceforge.net")
 set(CPACK_NSIS_CREATE_ICONS "CreateShortCut '\$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\Five Hundred.lnk' '\$INSTDIR\\\\fivehundred.exe'")
-set(CPACK_NSIS_MUI_FINISHPAGE_RUN "fivehundred.exe")
 set(CPACK_STRIP_FILES "fivehundred.exe")
 set(CPACK_GENERATOR "NSIS")
 
